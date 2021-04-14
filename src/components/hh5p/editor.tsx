@@ -125,7 +125,12 @@ export const Editor: FunctionComponent<EditorProps> = ({ settings }) => {
             <script key={script} src={script}></script>
           ))}
           {settings.core.styles.map((style) => (
-            <link rel="text/css" key={style} href={style}></link>
+            <link
+              type="text/css"
+              rel="stylesheet"
+              key={style}
+              href={style}
+            ></link>
           ))}
         </head>
         <body>
@@ -133,7 +138,10 @@ export const Editor: FunctionComponent<EditorProps> = ({ settings }) => {
             <div id="h5p-editor" className="height-observer">
               loading
             </div>
-            <button id="h5p-editor-submit">submit data</button>
+            <p></p>
+            <button className="h5p-core-button" id="h5p-editor-submit">
+              submit data
+            </button>
             <script>
               {`           
             (function ($) {
