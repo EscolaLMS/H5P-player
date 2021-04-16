@@ -1,8 +1,15 @@
-import React, { useEffect, useState, FunctionComponent, useMemo } from "react";
+import React, {
+  useEffect,
+  useState,
+  FunctionComponent,
+  useMemo,
+  useRef,
+} from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { escape, unescape } from "html-escaper";
+import { unescape } from "html-escaper";
 
 import "./editor.css";
+import Loader from "./loader";
 type Dict = {
   [key: string]: string | Dict;
 };
@@ -36,9 +43,25 @@ export type EditorSettings = {
     deleteMessage: string;
     apiVersion: { majorVersion: number; minorVersion: number };
   };
+  contents?: {
+    [contentId: string]: {
+      library: string;
+      jsonContent: string;
+      fullScreen: boolean;
+      title: string;
+      contentUserData: [
+        {
+          state: object;
+        }
+      ];
+    };
+  };
 };
 
 type EditorState =
+  | {
+      value: "initial";
+    }
   | {
       value: "loading";
     }
@@ -51,14 +74,54 @@ type EditorState =
       error: string;
     };
 
+type ContentState =
+  | {
+      value: "initial";
+    }
+  | {
+      value: "loading";
+    }
+  | {
+      value: "loaded";
+      data: object;
+    }
+  | {
+      value: "error";
+      error: string;
+    };
+
+type H5PEditorStatus =
+  | {
+      h5pEditorStatus: "error";
+      error: string;
+    }
+  | {
+      h5pEditorStatus: "success";
+      data: H5PEditorContent;
+    };
+
+type H5PEditorContent = {
+  title: string;
+  library: string;
+  params: string; // JSON string
+};
+
 type EditorProps = {
   settings: EditorSettings;
+  loading: boolean;
+  onSubmit?: (data: H5PEditorContent) => void;
 };
 
 export const EditorWrapper: FunctionComponent<{ editorApiUrl: string }> = ({
   editorApiUrl,
 }) => {
-  const [state, setState] = useState<EditorState>({ value: "loading" });
+  const [editorState, setEditorState] = useState<EditorState>({
+    value: "initial",
+  });
+  const [contentState, setContentState] = useState<ContentState>({
+    value: "initial",
+  });
+
   useEffect(() => {
     fetch(editorApiUrl)
       .then((response) => {
@@ -68,58 +131,90 @@ export const EditorWrapper: FunctionComponent<{ editorApiUrl: string }> = ({
         return response.json();
       })
       .then((data) => {
-        setState({
+        setEditorState({
           value: "loaded",
           settings: data,
         });
       })
       .catch((err) => {
-        setState({
+        setEditorState({
           value: "error",
           error: err.toString(),
         });
       });
   }, [editorApiUrl]);
-  if (state.value === "loading") {
+  if (editorState.value === "loading" || editorState.value === "initial") {
     return <pre>loading</pre>;
   }
-  if (state.value === "error") {
+  if (editorState.value === "error") {
     return (
       <pre>
-        <strong>Error:</strong> {state.error}
+        <strong>Error:</strong> {editorState.error}
       </pre>
     );
   }
-  return <Editor settings={state.settings} />;
+  return (
+    <Editor
+      settings={editorState.settings}
+      onSubmit={(data) => {
+        setContentState({ value: "loading" });
+        setTimeout(() => {
+          setContentState({ value: "loaded", data: { foo: "bar" } });
+        }, 1500);
+      }}
+      loading={contentState.value === "loading"}
+    />
+  );
 };
 
-export const Editor: FunctionComponent<EditorProps> = ({ settings }) => {
+export const Editor: FunctionComponent<EditorProps> = ({
+  settings,
+  loading,
+  onSubmit,
+}) => {
   const [height, setHeight] = useState<number>(100);
+  const iFrameRef = useRef<HTMLIFrameElement>(null);
+
   useEffect(() => {
     const onMessage = (event: MessageEvent) => {
+      if (!(event.origin === window.location.origin)) {
+        return;
+      }
       if (event.data.iFrameHeight) {
         setHeight(event.data.iFrameHeight);
       }
-      //console.log(event);
+      console.log(event.data);
+      if (event.data.h5pEditorStatus) {
+        const status: H5PEditorStatus = event.data;
+        status.h5pEditorStatus === "success" &&
+          onSubmit &&
+          onSubmit(status.data);
+        status.h5pEditorStatus === "error" && console.log(status.error);
+      }
     };
-    window.addEventListener("message", onMessage);
+
+    window && window.addEventListener("message", onMessage);
     return () => {
-      window.removeEventListener("message", onMessage);
+      window && window.removeEventListener("message", onMessage);
     };
-  }, []);
+  }, [iFrameRef, onSubmit]);
 
   const src = useMemo(() => {
+    const content = settings.contents
+      ? settings.contents[Object.keys(settings.contents)[0]]
+      : null;
+    const params = content ? content.jsonContent : "";
+
+    const library = content ? content.library : "";
+
     const markup = renderToStaticMarkup(
       <html>
         <head>
-          <style>
-            {`
-              body, html {margin:0; padding:0;}
-              `}
-          </style>
+          <style>{` body, html {margin:0; padding:0;}`}</style>
           <script>
-            const H5PIntegration = window.H5PIntegration ={" "}
-            {JSON.stringify(settings)};
+            {`const H5PIntegration = window.H5PIntegration = ${JSON.stringify(
+              settings
+            )}; `}
           </script>
           {settings.core.scripts.map((script) => (
             <script key={script} src={script}></script>
@@ -145,7 +240,7 @@ export const Editor: FunctionComponent<EditorProps> = ({ settings }) => {
             <script>
               {`           
             (function ($) {
-                const postMessage = (data) => parent.postMessage(data, "*");
+                const postMessage = (data) => parent.postMessage(data, "${window.location.origin}");
                 const resizeObserver = new ResizeObserver((entries) =>
                     postMessage({ iFrameHeight: entries[0].contentRect.height })
                 );
@@ -163,18 +258,13 @@ export const Editor: FunctionComponent<EditorProps> = ({ settings }) => {
                     if (H5PIntegration.editor.nodeVersionId !== undefined) {
                         ns.contentId = H5PIntegration.editor.nodeVersionId;
                     }
-                    const $editor = $("#h5p-editor");
-                    const $params = $("#h5p-parameters");
-                    const $library = $("#h5p-library");
-                    const library = $library.val();
-                    const h5peditor = new ns.Editor(library, $params.val(), $editor[0]);
+                    const h5peditor = new ns.Editor('${library}', '${params}', document.getElementById("h5p-editor"));
                     H5P.externalDispatcher.on("xAPI", (event) => postMessage(event));
                     H5P.externalDispatcher.on("resize", (event) => postMessage(event));
                     resizeObserver.observe(document.querySelector(".h5p-editor-wrapper"));
-                    $("#h5p-editor-submit").click(function () {
-                        console.log(h5peditor.getParams(), h5peditor.getLibrary());
-                        return false;
-                    });
+                    $("#h5p-editor-submit").click(() => {
+                        h5peditor.getContent(data => postMessage({h5pEditorStatus:"success", data}), error =>  postMessage({h5pEditorStatus:"error", error}))
+                    } );
                 };
                 ns.getAjaxUrl = function (action, parameters) {
                     var url = H5PIntegration.editor.ajaxPath + action;
@@ -199,13 +289,16 @@ export const Editor: FunctionComponent<EditorProps> = ({ settings }) => {
     );
 
     return window.URL.createObjectURL(
-      new Blob([unescape(markup)], { type: "text/html" })
+      new Blob([unescape(markup).split("&#x27;").join("'")], {
+        type: "text/html",
+      })
     );
   }, [settings]);
 
   return (
-    <div className="editor" style={{ height: height }}>
-      <iframe title="editor" src={src}></iframe>
+    <div className="h5p-editor" style={{ height: height }}>
+      {loading && <Loader />}
+      <iframe ref={iFrameRef} title="editor" src={src}></iframe>
     </div>
   );
 };
