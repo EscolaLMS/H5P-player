@@ -4,91 +4,15 @@ import React, {
   FunctionComponent,
   useMemo,
   useRef,
+  useContext,
 } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { unescape } from "html-escaper";
 
-import "./editor.css";
-import Loader from "./loader";
-type Dict = {
-  [key: string]: string | Dict;
-};
-export type EditorSettings = {
-  baseUrl: string;
-  url: string;
-  postUserStatistics: false;
-  ajax: { setFinished: string; contentUserData: string };
-  saveFreq: false;
-  siteUrl: string;
-  l10n: Dict;
-  hubIsEnabled: false;
-  loadedJs: string[];
-  loadedCss: string[];
-  core: {
-    styles: string[];
-    scripts: string[];
-  };
-  editor: {
-    filesPath: string;
-    fileIcon: { path: string; width: number; height: number };
-    ajaxPath: string;
-    libraryUrl: string;
-    copyrightSemantics: Dict;
-    metadataSemantics: Dict[];
+import "./index.css";
+import Loader from "./../loader";
 
-    assets: {
-      css: string[];
-      js: string[];
-    };
-    deleteMessage: string;
-    apiVersion: { majorVersion: number; minorVersion: number };
-  };
-  contents?: {
-    [contentId: string]: {
-      library: string;
-      jsonContent: string;
-      fullScreen: boolean;
-      title: string;
-      contentUserData: [
-        {
-          state: object;
-        }
-      ];
-    };
-  };
-};
-
-type EditorState =
-  | {
-      value: "initial";
-    }
-  | {
-      value: "loading";
-    }
-  | {
-      value: "loaded";
-      settings: EditorSettings;
-    }
-  | {
-      value: "error";
-      error: string;
-    };
-
-type ContentState =
-  | {
-      value: "initial";
-    }
-  | {
-      value: "loading";
-    }
-  | {
-      value: "loaded";
-      data: object;
-    }
-  | {
-      value: "error";
-      error: string;
-    };
+import { EditorContext } from "./context";
 
 type H5PEditorStatus =
   | {
@@ -104,76 +28,23 @@ type H5PEditorContent = {
   title: string;
   library: string;
   params: string; // JSON string
+  nonce: string;
 };
 
 type EditorProps = {
-  settings: EditorSettings;
-  loading: boolean;
-  onSubmit?: (data: H5PEditorContent) => void;
+  id?: number | string;
+  onSubmit?: (response: { id: string | number }) => void;
 };
 
-export const EditorWrapper: FunctionComponent<{ editorApiUrl: string }> = ({
-  editorApiUrl,
-}) => {
-  const [editorState, setEditorState] = useState<EditorState>({
-    value: "initial",
-  });
-  const [contentState, setContentState] = useState<ContentState>({
-    value: "initial",
-  });
-
-  useEffect(() => {
-    fetch(editorApiUrl)
-      .then((response) => {
-        if (!response.ok) {
-          throw Error(`response error status ${response.status}`);
-        }
-        return response.json();
-      })
-      .then((data) => {
-        setEditorState({
-          value: "loaded",
-          settings: data,
-        });
-      })
-      .catch((err) => {
-        setEditorState({
-          value: "error",
-          error: err.toString(),
-        });
-      });
-  }, [editorApiUrl]);
-  if (editorState.value === "loading" || editorState.value === "initial") {
-    return <pre>loading</pre>;
-  }
-  if (editorState.value === "error") {
-    return (
-      <pre>
-        <strong>Error:</strong> {editorState.error}
-      </pre>
-    );
-  }
-  return (
-    <Editor
-      settings={editorState.settings}
-      onSubmit={(data) => {
-        setContentState({ value: "loading" });
-        setTimeout(() => {
-          setContentState({ value: "loaded", data: { foo: "bar" } });
-        }, 1500);
-      }}
-      loading={contentState.value === "loading"}
-    />
-  );
-};
-
-export const Editor: FunctionComponent<EditorProps> = ({
-  settings,
-  loading,
-  onSubmit,
-}) => {
+export const Editor: FunctionComponent<EditorProps> = ({ id, onSubmit }) => {
   const [height, setHeight] = useState<number>(100);
   const iFrameRef = useRef<HTMLIFrameElement>(null);
+
+  const { state, getEditorConfig, submitContent } = useContext(EditorContext);
+
+  useEffect(() => {
+    getEditorConfig && getEditorConfig(id);
+  }, [id, getEditorConfig]);
 
   useEffect(() => {
     const onMessage = (event: MessageEvent) => {
@@ -183,12 +54,16 @@ export const Editor: FunctionComponent<EditorProps> = ({
       if (event.data.iFrameHeight) {
         setHeight(event.data.iFrameHeight);
       }
-      console.log(event.data);
       if (event.data.h5pEditorStatus) {
         const status: H5PEditorStatus = event.data;
-        status.h5pEditorStatus === "success" &&
-          onSubmit &&
-          onSubmit(status.data);
+        if (status.h5pEditorStatus === "success" && state.value === "loaded") {
+          submitContent &&
+            submitContent({
+              ...status.data,
+              nonce: state.settings.nonce,
+            }).then((data) => onSubmit && data && onSubmit(data));
+        }
+
         status.h5pEditorStatus === "error" && console.log(status.error);
       }
     };
@@ -197,12 +72,16 @@ export const Editor: FunctionComponent<EditorProps> = ({
     return () => {
       window && window.removeEventListener("message", onMessage);
     };
-  }, [iFrameRef, onSubmit]);
+  }, [iFrameRef, submitContent, state, onSubmit]);
 
   const src = useMemo(() => {
-    const content = settings.contents
-      ? settings.contents[Object.keys(settings.contents)[0]]
-      : null;
+    const settings = state.value === "loaded" && state.settings;
+    if (!settings) return "";
+
+    const content =
+      state.value === "loaded" && state.settings?.contents
+        ? state.settings?.contents[Object.keys(state.settings?.contents)[0]]
+        : null;
     const params = content ? content.jsonContent : "";
 
     const library = content ? content.library : "";
@@ -266,8 +145,9 @@ export const Editor: FunctionComponent<EditorProps> = ({
                         h5peditor.getContent(data => postMessage({h5pEditorStatus:"success", data}), error =>  postMessage({h5pEditorStatus:"error", error}))
                     } );
                 };
-                ns.getAjaxUrl = function (action, parameters) {
+                ns.getAjaxUrl = function (action, parameters) {                  
                     var url = H5PIntegration.editor.ajaxPath + action;
+                    url += action === "files" ? "/${settings.nonce}" : "";
                     if (parameters !== undefined) {
                         var separator = url.indexOf("?") === -1 ? "?" : "&";
                         for (var property in parameters) {
@@ -293,14 +173,14 @@ export const Editor: FunctionComponent<EditorProps> = ({
         type: "text/html",
       })
     );
-  }, [settings]);
+  }, [state]);
 
   return (
     <div className="h5p-editor" style={{ height: height }}>
-      {loading && <Loader />}
+      {state.value === "loading" && <Loader />}
       <iframe ref={iFrameRef} title="editor" src={src}></iframe>
     </div>
   );
 };
 
-export default EditorWrapper;
+export default Editor;
