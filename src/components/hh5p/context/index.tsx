@@ -5,87 +5,13 @@ import React, {
   useMemo,
 } from "react";
 
-type Dict = {
-  [key: string]: string | Dict;
-};
+import {
+  EditorContextConfig,
+  EditorState,
+  EditorSettings,
+  H5PEditorContent,
+} from "./../../../types";
 
-export type H5PEditorContent = {
-  title: string;
-  library: string;
-  params: string; // JSON string
-  nonce: string;
-};
-
-export type EditorSettings = {
-  baseUrl: string;
-  url: string;
-  postUserStatistics: false;
-  ajax: { setFinished: string; contentUserData: string };
-  saveFreq: false;
-  siteUrl: string;
-  l10n: Dict;
-  hubIsEnabled: false;
-  loadedJs: string[];
-  loadedCss: string[];
-  core: {
-    styles: string[];
-    scripts: string[];
-  };
-  editor: {
-    filesPath: string;
-    fileIcon: { path: string; width: number; height: number };
-    ajaxPath: string;
-    libraryUrl: string;
-    copyrightSemantics: Dict;
-    metadataSemantics: Dict[];
-
-    assets: {
-      css: string[];
-      js: string[];
-    };
-    deleteMessage: string;
-    apiVersion: { majorVersion: number; minorVersion: number };
-  };
-  nonce: string;
-  contents?: {
-    [contentId: string]: {
-      library: string;
-      jsonContent: string;
-      fullScreen: boolean;
-      title: string;
-      contentUserData: [
-        {
-          state: object;
-        }
-      ];
-    };
-  };
-};
-
-type EditorState =
-  | {
-      value: "initial";
-    }
-  | {
-      value: "loading";
-    }
-  | {
-      value: "loaded";
-      settings: EditorSettings;
-    }
-  | {
-      value: "error";
-      error: string;
-    };
-
-type EditorContextConfig = {
-  state: EditorState;
-  url: string;
-  getEditorConfig?: (id?: number | string) => Promise<EditorSettings | void>;
-  submitContent?: (
-    data: H5PEditorContent
-  ) => Promise<{ id: string | number } | void>;
-};
 interface IMock {
   children?: React.ReactElement[] | React.ReactElement;
   url: string;
@@ -148,8 +74,8 @@ export const EditorContextProvider: FunctionComponent<IMock> = ({
   );
 
   const submitContent = useCallback(
-    (data: H5PEditorContent) => {
-      return fetch(`${url}/content`, {
+    (data: H5PEditorContent, id = null) => {
+      return fetch(id ? `${url}/content/${id}` : `${url}/content`, {
         method: "POST",
         body: JSON.stringify(data),
         headers,

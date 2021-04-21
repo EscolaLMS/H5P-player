@@ -12,24 +12,9 @@ import { unescape } from "html-escaper";
 import "./index.css";
 import Loader from "./../loader";
 
-import { EditorContext } from "./context";
+import { EditorContext } from "./../context";
 
-type H5PEditorStatus =
-  | {
-      h5pEditorStatus: "error";
-      error: string;
-    }
-  | {
-      h5pEditorStatus: "success";
-      data: H5PEditorContent;
-    };
-
-type H5PEditorContent = {
-  title: string;
-  library: string;
-  params: string; // JSON string
-  nonce: string;
-};
+import { H5PEditorStatus } from "./../../../types";
 
 type EditorProps = {
   id?: number | string;
@@ -39,6 +24,7 @@ type EditorProps = {
 export const Editor: FunctionComponent<EditorProps> = ({ id, onSubmit }) => {
   const [height, setHeight] = useState<number>(100);
   const iFrameRef = useRef<HTMLIFrameElement>(null);
+  const [loading, setLoading] = useState<boolean>(false);
 
   const { state, getEditorConfig, submitContent } = useContext(EditorContext);
 
@@ -57,11 +43,22 @@ export const Editor: FunctionComponent<EditorProps> = ({ id, onSubmit }) => {
       if (event.data.h5pEditorStatus) {
         const status: H5PEditorStatus = event.data;
         if (status.h5pEditorStatus === "success" && state.value === "loaded") {
+          setLoading(true);
           submitContent &&
-            submitContent({
-              ...status.data,
-              nonce: state.settings.nonce,
-            }).then((data) => onSubmit && data && onSubmit(data));
+            submitContent(
+              {
+                ...status.data,
+                nonce: state.settings.nonce,
+              },
+              id
+            )
+              .then((data) => {
+                onSubmit && data && onSubmit(data);
+                setLoading(false);
+              })
+              .catch(() => {
+                setLoading(false);
+              });
         }
 
         status.h5pEditorStatus === "error" && console.log(status.error);
@@ -72,7 +69,7 @@ export const Editor: FunctionComponent<EditorProps> = ({ id, onSubmit }) => {
     return () => {
       window && window.removeEventListener("message", onMessage);
     };
-  }, [iFrameRef, submitContent, state, onSubmit]);
+  }, [iFrameRef, submitContent, state, onSubmit, id]);
 
   const src = useMemo(() => {
     const settings = state.value === "loaded" && state.settings;
@@ -177,7 +174,7 @@ export const Editor: FunctionComponent<EditorProps> = ({ id, onSubmit }) => {
 
   return (
     <div className="h5p-editor" style={{ height: height }}>
-      {state.value === "loading" && <Loader />}
+      {loading && <Loader />}
       <iframe ref={iFrameRef} title="editor" src={src}></iframe>
     </div>
   );
