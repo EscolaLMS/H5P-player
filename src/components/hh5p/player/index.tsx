@@ -26,14 +26,14 @@ export const Player: FunctionComponent<PlayerProps> = ({ id, onXAPI }) => {
   const iFrameRef = useRef<HTMLIFrameElement>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
-  const { state, getEditorConfig } = useContext(EditorContext);
+  const { state, getContentConfig } = useContext(EditorContext);
 
   useEffect(() => {
-    getEditorConfig &&
-      getEditorConfig(id)
+    getContentConfig &&
+      getContentConfig(id)
         .then(() => setLoading(false))
         .catch(() => setLoading(false));
-  }, [id, getEditorConfig]);
+  }, [id, getContentConfig]);
 
   useEffect(() => {
     const onMessage = (event: MessageEvent) => {
@@ -74,9 +74,9 @@ export const Player: FunctionComponent<PlayerProps> = ({ id, onXAPI }) => {
               settings
             )}; `}
           </script>
-          {/*settings.core.scripts.map((script) => (
+          {settings.core.scripts.map((script) => (
             <script key={script} src={script}></script>
-          ))*/}
+          ))}
           {settings.core.styles.map((style) => (
             <link
               type="text/css"
@@ -85,6 +85,9 @@ export const Player: FunctionComponent<PlayerProps> = ({ id, onXAPI }) => {
               href={style}
             ></link>
           ))}
+          <script>
+            {`H5P.getCrossOrigin = function (source) { return "anonymous" }`}
+          </script>
         </head>
         <body>
           <div className="h5p-player-wrapper h5p-resize-observer">
@@ -104,9 +107,7 @@ export const Player: FunctionComponent<PlayerProps> = ({ id, onXAPI }) => {
                 ></iframe>
               </div>
             )}
-            {settings.core.scripts.map((script) => (
-              <script key={script} src={script}></script>
-            ))}
+
             <script>
               {`           
             (function ($) {

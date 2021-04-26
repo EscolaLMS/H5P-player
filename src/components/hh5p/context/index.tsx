@@ -5,6 +5,7 @@ import React, {
   useMemo,
 } from "react";
 
+// TODO rename this to H5PContext
 import {
   EditorContextConfig,
   EditorState,
@@ -73,6 +74,36 @@ export const EditorContextProvider: FunctionComponent<IMock> = ({
     [url, headers]
   );
 
+  const getContentConfig = useCallback(
+    (id) => {
+      return fetch(id ? `${url}/content/${id}` : `${url}/content`, {
+        headers,
+      })
+        .then((response) => {
+          if (!response.ok) {
+            throw Error(`response error status ${response.status}`);
+          }
+          return response.json();
+        })
+        .then((data) => {
+          setState((prevState) => ({
+            ...prevState,
+            value: "loaded",
+            settings: data,
+          }));
+          return data as EditorSettings;
+        })
+        .catch((err) => {
+          setState((prevState) => ({
+            ...prevState,
+            value: "error",
+            error: err.toString(),
+          }));
+        });
+    },
+    [url, headers]
+  );
+
   const submitContent = useCallback(
     (data: H5PEditorContent, id = null) => {
       return fetch(id ? `${url}/content/${id}` : `${url}/content`, {
@@ -102,7 +133,7 @@ export const EditorContextProvider: FunctionComponent<IMock> = ({
 
   return (
     <EditorContext.Provider
-      value={{ url, state, getEditorConfig, submitContent }}
+      value={{ url, state, getEditorConfig, getContentConfig, submitContent }}
     >
       {children}
     </EditorContext.Provider>

@@ -126,6 +126,7 @@ export type EditorContextConfig = {
   state: EditorState;
   url: string;
   getEditorConfig?: (id?: number | string) => Promise<EditorSettings | void>;
+  getContentConfig?: (id: number | string) => Promise<EditorSettings | void>;
   submitContent?: (
     data: H5PEditorContent,
     id?: string | number
