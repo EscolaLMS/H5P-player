@@ -1,30 +1,43 @@
-import React, {
-  useEffect,
-  useState,
-  FunctionComponent,
-  useMemo,
-  useRef,
-  useContext,
-} from "react";
-import { renderToStaticMarkup } from "react-dom/server";
-import { unescape } from "html-escaper";
+import React, { useEffect, useState, FunctionComponent, useMemo, useRef, useContext } from 'react';
+import { renderToStaticMarkup } from 'react-dom/server';
+import { unescape } from 'html-escaper';
+import Loader from './../loader';
+import { EditorContext } from './../context';
+import { H5PEditorStatus } from './../../../types';
 
-import "./index.css";
-import Loader from "./../loader";
+import './index.css';
 
-import { EditorContext } from "./../context";
-
-import { H5PEditorStatus } from "./../../../types";
+const prepareMarkupForPassing = (markup: string) => {
+  return unescape(markup);
+};
 
 type EditorProps = {
   id?: number | string;
   onSubmit?: (response: { id: string | number }) => void;
 };
 
+type EditorState =
+  | {
+      state: 'initial';
+    }
+  | {
+      state: 'loading';
+    }
+  | {
+      state: 'loaded';
+    }
+  | {
+      state: 'submitting';
+    }
+  | {
+      state: 'error';
+      error: string;
+    };
+
 export const Editor: FunctionComponent<EditorProps> = ({ id, onSubmit }) => {
   const [height, setHeight] = useState<number>(100);
   const iFrameRef = useRef<HTMLIFrameElement>(null);
-  const [loading, setLoading] = useState<boolean>(false);
+  const [editorState, setEditorState] = useState<EditorState>({ state: 'initial' });
 
   const { state, getEditorConfig, submitContent } = useContext(EditorContext);
 
@@ -42,66 +55,117 @@ export const Editor: FunctionComponent<EditorProps> = ({ id, onSubmit }) => {
       }
       if (event.data.h5pEditorStatus) {
         const status: H5PEditorStatus = event.data;
-        if (status.h5pEditorStatus === "success" && state.value === "loaded") {
-          setLoading(true);
+        if (status.h5pEditorStatus === 'success' && state.value === 'loaded') {
+          setEditorState({ state: 'loading' });
           submitContent &&
             submitContent(
               {
                 ...status.data,
                 nonce: state.settings.nonce,
               },
-              id
+              id,
             )
               .then((data) => {
                 onSubmit && data && onSubmit(data);
-                setLoading(false);
+                setEditorState({ state: 'loaded' });
               })
-              .catch(() => {
-                setLoading(false);
+              .catch((err) => {
+                setEditorState({ state: 'error', error: err.toString() });
               });
         }
 
-        status.h5pEditorStatus === "error" && console.log(status.error);
+        status.h5pEditorStatus === 'error' && console.log(status.error);
       }
     };
 
-    window && window.addEventListener("message", onMessage);
+    window && window.addEventListener('message', onMessage);
     return () => {
-      window && window.removeEventListener("message", onMessage);
+      window && window.removeEventListener('message', onMessage);
     };
   }, [iFrameRef, submitContent, state, onSubmit, id]);
 
   const src = useMemo(() => {
-    const settings = state.value === "loaded" && state.settings;
-    if (!settings) return "";
+    const settings = state.value === 'loaded' && state.settings;
+    if (!settings) return '';
 
     const content =
-      state.value === "loaded" && state.settings?.contents
+      state.value === 'loaded' && state.settings?.contents
         ? state.settings?.contents[Object.keys(state.settings?.contents)[0]]
         : null;
-    const params = content ? content.jsonContent : "";
+    const params = content ? content.jsonContent : '';
 
-    const library = content ? content.library : "";
+    try {
+      JSON.parse(params);
+    } catch (er) {
+      setEditorState({ state: 'error', error: er.toString() });
+      return null;
+    }
+
+    const library = content ? content.library : '';
+
+    const scriptInline = `
+    (function ($) {
+        const postMessage = (data) => parent.postMessage(data, "${window.location.origin}");
+        const resizeObserver = new ResizeObserver((entries) =>
+            postMessage({ iFrameHeight: entries[0].contentRect.height })
+        );
+        const params = '${params}'.split("\\n").join('');
+        ns.init = function () {
+            ns.$ = H5P.jQuery;
+            ns.basePath = H5PIntegration.editor.libraryUrl;
+            ns.fileIcon = H5PIntegration.editor.fileIcon;
+            ns.ajaxPath = H5PIntegration.editor.ajaxPath;
+            ns.filesPath = H5PIntegration.editor.filesPath;
+            ns.apiVersion = H5PIntegration.editor.apiVersion;
+            ns.copyrightSemantics = H5PIntegration.editor.copyrightSemantics;
+            ns.assets = H5PIntegration.editor.assets;
+            ns.baseUrl = H5PIntegration.baseUrl;
+            ns.metadataSemantics = H5PIntegration.editor.metadataSemantics;
+            if (H5PIntegration.editor.nodeVersionId !== undefined) {
+                ns.contentId = H5PIntegration.editor.nodeVersionId;
+            }
+            const h5peditor = new ns.Editor('${library}', params, document.getElementById("h5p-editor"));
+            H5P.externalDispatcher.on("xAPI", (event) => postMessage(event));
+            H5P.externalDispatcher.on("resize", (event) => postMessage(event));
+            resizeObserver.observe(document.querySelector(".h5p-editor-wrapper"));
+            $("#h5p-editor-submit").click(() => {
+                h5peditor.getContent(data => postMessage({h5pEditorStatus:"success", data}), error =>  postMessage({h5pEditorStatus:"error", error}))
+            } );
+        };
+        ns.getAjaxUrl = function (action, parameters) {
+            var url = H5PIntegration.editor.ajaxPath + action;
+            url += action === "files" ? "/${settings.nonce}" : "";
+            if (parameters !== undefined) {
+                var separator = url.indexOf("?") === -1 ? "?" : "&";
+                for (var property in parameters) {
+                    if (parameters.hasOwnProperty(property)) {
+                        url += separator + property + "=" + parameters[property];
+                        separator = "&";
+                    }
+                }
+            }
+            return url;
+        };
+        $(document).ready(ns.init);
+    })(H5P.jQuery);
+    `;
 
     const markup = renderToStaticMarkup(
       <html>
         <head>
           <style>{` body, html {margin:0; padding:0;}`}</style>
-          <script>
-            {`const H5PIntegration = window.H5PIntegration = ${JSON.stringify(
-              settings
-            )}; `}
-          </script>
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `const H5PIntegration = window.H5PIntegration = ${JSON.stringify(
+                settings,
+              )}; `,
+            }}
+          />
           {settings.core.scripts.map((script) => (
             <script key={script} src={script}></script>
           ))}
           {settings.core.styles.map((style) => (
-            <link
-              type="text/css"
-              rel="stylesheet"
-              key={style}
-              href={style}
-            ></link>
+            <link type="text/css" rel="stylesheet" key={style} href={style}></link>
           ))}
         </head>
         <body>
@@ -113,69 +177,30 @@ export const Editor: FunctionComponent<EditorProps> = ({ id, onSubmit }) => {
             <button className="h5p-core-button" id="h5p-editor-submit">
               submit data
             </button>
-            <script>
-              {`           
-            (function ($) {
-                const postMessage = (data) => parent.postMessage(data, "${window.location.origin}");
-                const resizeObserver = new ResizeObserver((entries) =>
-                    postMessage({ iFrameHeight: entries[0].contentRect.height })
-                );
-                ns.init = function () {
-                    ns.$ = H5P.jQuery;
-                    ns.basePath = H5PIntegration.editor.libraryUrl;
-                    ns.fileIcon = H5PIntegration.editor.fileIcon;
-                    ns.ajaxPath = H5PIntegration.editor.ajaxPath;
-                    ns.filesPath = H5PIntegration.editor.filesPath;
-                    ns.apiVersion = H5PIntegration.editor.apiVersion;
-                    ns.copyrightSemantics = H5PIntegration.editor.copyrightSemantics;
-                    ns.assets = H5PIntegration.editor.assets;
-                    ns.baseUrl = H5PIntegration.baseUrl;
-                    ns.metadataSemantics = H5PIntegration.editor.metadataSemantics;
-                    if (H5PIntegration.editor.nodeVersionId !== undefined) {
-                        ns.contentId = H5PIntegration.editor.nodeVersionId;
-                    }
-                    const h5peditor = new ns.Editor('${library}', '${params}', document.getElementById("h5p-editor"));
-                    H5P.externalDispatcher.on("xAPI", (event) => postMessage(event));
-                    H5P.externalDispatcher.on("resize", (event) => postMessage(event));
-                    resizeObserver.observe(document.querySelector(".h5p-editor-wrapper"));
-                    $("#h5p-editor-submit").click(() => {
-                        h5peditor.getContent(data => postMessage({h5pEditorStatus:"success", data}), error =>  postMessage({h5pEditorStatus:"error", error}))
-                    } );
-                };
-                ns.getAjaxUrl = function (action, parameters) {                  
-                    var url = H5PIntegration.editor.ajaxPath + action;
-                    url += action === "files" ? "/${settings.nonce}" : "";
-                    if (parameters !== undefined) {
-                        var separator = url.indexOf("?") === -1 ? "?" : "&";
-                        for (var property in parameters) {
-                            if (parameters.hasOwnProperty(property)) {
-                                url += separator + property + "=" + parameters[property];
-                                separator = "&";
-                            }
-                        }
-                    }
-                    return url;
-                };
-                $(document).ready(ns.init);
-            })(H5P.jQuery);
-            `}
-            </script>
+            <script dangerouslySetInnerHTML={{ __html: scriptInline }} />
           </div>
         </body>
-      </html>
+      </html>,
     );
 
+    const pMarkup = prepareMarkupForPassing(markup);
+
     return window.URL.createObjectURL(
-      new Blob([unescape(markup).split("&#x27;").join("'")], {
-        type: "text/html",
-      })
+      new Blob([pMarkup], {
+        type: 'text/html',
+      }),
     );
   }, [state]);
 
   return (
     <div className="h5p-editor" style={{ height: height }}>
-      {loading && <Loader />}
-      <iframe ref={iFrameRef} title="editor" src={src}></iframe>
+      {editorState.state === 'loading' && <Loader />}
+      {editorState.state === 'error' && (
+        <p>
+          <pre>Error:</pre> {editorState.error}
+        </p>
+      )}
+      {src && <iframe ref={iFrameRef} title="editor" src={src}></iframe>}
     </div>
   );
 };
