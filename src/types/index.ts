@@ -38,7 +38,7 @@ export type XAPIEvent = {
           {
             id: string;
             objectType: string;
-          }
+          },
         ];
       };
     };
@@ -83,8 +83,9 @@ export type EditorSettings = {
     apiVersion: { majorVersion: number; minorVersion: number };
   };
   nonce: string;
-  contents?: {
-    [contentId: string]: {
+  contents?: Record<
+    string,
+    {
       library: string;
       jsonContent: string;
       fullScreen: boolean;
@@ -100,25 +101,25 @@ export type EditorSettings = {
       contentUserData: [
         {
           state: object;
-        }
+        },
       ];
-    };
-  };
+    }
+  >;
 };
 
 export type EditorState =
   | {
-      value: "initial";
+      value: 'initial';
     }
   | {
-      value: "loading";
+      value: 'loading';
     }
   | {
-      value: "loaded";
+      value: 'loaded';
       settings: EditorSettings;
     }
   | {
-      value: "error";
+      value: 'error';
       error: string;
     };
 
@@ -129,16 +130,16 @@ export type EditorContextConfig = {
   getContentConfig?: (id: number | string) => Promise<EditorSettings | void>;
   submitContent?: (
     data: H5PEditorContent,
-    id?: string | number
+    id?: string | number,
   ) => Promise<{ id: string | number } | void>;
 };
 
 export type H5PEditorStatus =
   | {
-      h5pEditorStatus: "error";
+      h5pEditorStatus: 'error';
       error: string;
     }
   | {
-      h5pEditorStatus: "success";
+      h5pEditorStatus: 'success';
       data: H5PEditorContent;
     };
