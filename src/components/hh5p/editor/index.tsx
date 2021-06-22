@@ -95,7 +95,7 @@ export const Editor: FunctionComponent<EditorProps> = ({ id, onSubmit }) => {
     const params = content ? content.jsonContent : '';
 
     try {
-      JSON.parse(params);
+      params && JSON.parse(params);
     } catch (er) {
       setEditorState({ state: 'error', error: er.toString() });
       return null;
