@@ -65,7 +65,7 @@ export const Player: FunctionComponent<PlayerProps> = ({ id, onXAPI }) => {
     const markup = renderToStaticMarkup(
       <html>
         <head>
-          <style>{` 
+          <style>{`
           body, html {margin:0; padding:0;}
           iframe { border:none; margin:0; padding:0; }
           `}</style>
@@ -74,10 +74,10 @@ export const Player: FunctionComponent<PlayerProps> = ({ id, onXAPI }) => {
               settings
             )}; `}
           </script>
-          {settings.core.scripts.map((script) => (
+          {[...settings.core.scripts, ...settings.loadedJs].map((script) => (
             <script key={script} src={script}></script>
           ))}
-          {settings.core.styles.map((style) => (
+          {[...settings.core.styles, ...settings.loadedCss].map((style) => (
             <link
               type="text/css"
               rel="stylesheet"
@@ -91,7 +91,7 @@ export const Player: FunctionComponent<PlayerProps> = ({ id, onXAPI }) => {
         </head>
         <body>
           <div className="h5p-player-wrapper h5p-resize-observer">
-            {embedType && embedType === "div" && (
+            {(embedType && embedType === "div") || (embedType === '') && (
               <div className="h5p-content" data-content-id={id}></div>
             )}
             {embedType && embedType === "iframe" && (
@@ -109,7 +109,7 @@ export const Player: FunctionComponent<PlayerProps> = ({ id, onXAPI }) => {
             )}
 
             <script>
-              {`           
+              {`
             (function ($) {
                 const replacerFunc = () => {
                     const visited = new WeakSet();
@@ -128,14 +128,14 @@ export const Player: FunctionComponent<PlayerProps> = ({ id, onXAPI }) => {
                 const resizeObserver = new ResizeObserver((entries) =>
                     postMessage({ iFrameHeight: entries[0].contentRect.height })
                 );
-                resizeObserver.observe(document.querySelector(".h5p-resize-observer"));     
+                resizeObserver.observe(document.querySelector(".h5p-resize-observer"));
                 H5P.externalDispatcher.on('xAPI', function (event) {
                     try {
                       postMessage(event.data, replacerFunc())
                     } catch(err) {
                       console.error(event, err)
                     }
-                });           
+                });
             })(H5P.jQuery);
             `}
             </script>
