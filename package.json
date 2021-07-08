@@ -19,6 +19,7 @@
     "web-vitals": "^1.0.1"
   },
   "scripts": {
+    "lib": "tsc --noEmit false --outDir lib",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
