@@ -5,7 +5,7 @@ import Loader from './../loader';
 import { EditorContext } from './../context';
 import { H5PEditorStatus } from './../../../types';
 
-import './index.css';
+// import './index.css';
 
 const prepareMarkupForPassing = (markup: string) => {
   return unescape(markup);

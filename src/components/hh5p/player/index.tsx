@@ -9,7 +9,7 @@ import React, {
 import { renderToStaticMarkup } from "react-dom/server";
 import { unescape } from "html-escaper";
 
-import "./index.css";
+// import "./index.css";
 import Loader from "./../loader";
 
 import { EditorContext } from "./../context";
