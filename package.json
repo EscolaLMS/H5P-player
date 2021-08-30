@@ -21,7 +21,7 @@
         "copy-files": "copyfiles -u 1 src/**/*.css lib/",
         "lib": "tsc --noEmit false --outDir lib --module commonjs",
         "build": "rm -rf lib && npm run copy-files && npm run lib",
-        "publish": "npm version patch && npm publish"
+        "publish-prepare": "npm run build && npm version patch && npm publish"
     },
     "eslintConfig": {
         "extends": [
@@ -41,7 +41,7 @@
             "last 1 safari version"
         ]
     },
-    "main": "lib/main.js",
+    "main": "lib/index.js",
     "types": "lib/types.d.ts",
     "files": [
         "lib/**/*"
