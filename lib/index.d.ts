@@ -1,5 +1,9 @@
 /// <reference types="react" />
-declare const modules: {
+import { EditorContext, EditorContextProvider } from "./components/hh5p/context/index";
+import Player from "./components/hh5p/player";
+import Editor from "./components/hh5p/editor";
+export { EditorContext, EditorContextProvider, Player, Editor };
+declare const _default: {
     EditorContext: import("react").Context<H5P.EditorContextConfig>;
     EditorContextProvider: import("react").FunctionComponent<{
         children?: import("react").ReactElement<any, string | import("react").JSXElementConstructor<any>> | import("react").ReactElement<any, string | import("react").JSXElementConstructor<any>>[] | undefined;
@@ -16,4 +20,4 @@ declare const modules: {
         }) => void) | undefined;
     }>;
 };
-export default modules;
+export default _default;

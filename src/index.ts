@@ -5,11 +5,6 @@ import {
 import Player from "./components/hh5p/player";
 import Editor from "./components/hh5p/editor";
 
-const modules = {
-  EditorContext: EditorContext,
-  EditorContextProvider: EditorContextProvider,
-  Player: Player,
-  Editor: Editor,
-};
+export { EditorContext, EditorContextProvider, Player, Editor };
 
-export default modules;
+export default { EditorContext, EditorContextProvider, Player, Editor };

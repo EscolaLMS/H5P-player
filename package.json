@@ -21,7 +21,7 @@
         "copy-files": "copyfiles -u 1 src/**/*.css lib/",
         "lib": "tsc --noEmit false --outDir lib --module commonjs",
         "build": "rm -rf lib && npm run copy-files && npm run lib",
-        "publish-prepare": "npm run build && npm version patch && npm publish"
+        "pp": "npm run build && npm version patch"
     },
     "eslintConfig": {
         "extends": [
