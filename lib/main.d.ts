@@ -1,13 +1,13 @@
 /// <reference types="react" />
-declare const _default: {
-    EditorContext: import("react").Context<import("./types").EditorContextConfig>;
+declare const modules: {
+    EditorContext: import("react").Context<H5P.EditorContextConfig>;
     EditorContextProvider: import("react").FunctionComponent<{
         children?: import("react").ReactElement<any, string | import("react").JSXElementConstructor<any>> | import("react").ReactElement<any, string | import("react").JSXElementConstructor<any>>[] | undefined;
         url: string;
     }>;
     Player: import("react").FunctionComponent<{
         id: string | number;
-        onXAPI?: ((event: import("./types").XAPIEvent) => void) | undefined;
+        onXAPI?: ((event: H5P.XAPIEvent) => void) | undefined;
     }>;
     Editor: import("react").FunctionComponent<{
         id?: string | number | undefined;
@@ -16,4 +16,4 @@ declare const _default: {
         }) => void) | undefined;
     }>;
 };
-export default _default;
+export default modules;
