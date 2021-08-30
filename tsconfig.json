@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "declaration":true,
+    "declaration": true,
     "target": "es5",
     "lib": [
       "dom",
@@ -22,6 +22,6 @@
     "jsx": "react-jsx"
   },
   "include": [
-    "src", "src/main.d.ts"
+    "src"
   ]
 }

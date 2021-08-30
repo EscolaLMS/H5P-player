@@ -13,10 +13,11 @@ import { unescape } from "html-escaper";
 import Loader from "./../loader";
 
 import { EditorContext } from "./../context";
+import { XAPIEvent } from "../../../types";
 
 type PlayerProps = {
   id: number | string;
-  onXAPI?: (event: H5P.XAPIEvent) => void;
+  onXAPI?: (event: XAPIEvent) => void;
 };
 
 export const Player: FunctionComponent<PlayerProps> = ({ id, onXAPI }) => {
@@ -39,7 +40,7 @@ export const Player: FunctionComponent<PlayerProps> = ({ id, onXAPI }) => {
         setHeight(event.data.iFrameHeight);
       }
       if (event.data.statement) {
-        onXAPI && onXAPI(event.data as H5P.XAPIEvent);
+        onXAPI && onXAPI(event.data as XAPIEvent);
       }
     };
 
@@ -84,7 +85,7 @@ export const Player: FunctionComponent<PlayerProps> = ({ id, onXAPI }) => {
             ></link>
           ))}
           <script>
-            {`H5P.getCrossOrigin = function (source) { return "anonymous" }`}
+            {`getCrossOrigin = function (source) { return "anonymous" }`}
           </script>
         </head>
         <body>
@@ -128,14 +129,14 @@ export const Player: FunctionComponent<PlayerProps> = ({ id, onXAPI }) => {
                     postMessage({ iFrameHeight: entries[0].contentRect.height })
                 );
                 resizeObserver.observe(document.querySelector(".h5p-resize-observer"));
-                H5P.externalDispatcher.on('xAPI', function (event) {
+                externalDispatcher.on('xAPI', function (event) {
                     try {
                       postMessage(event.data, replacerFunc())
                     } catch(err) {
                       console.error(event, err)
                     }
                 });
-            })(H5P.jQuery);
+            })(jQuery);
             `}
             </script>
           </div>

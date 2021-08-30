@@ -10,7 +10,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { unescape } from "html-escaper";
 import Loader from "./../loader";
 import { EditorContext } from "./../context";
-
+import { EditorStatus } from "../../../types";
 // import './index.css';
 
 const prepareMarkupForPassing = (markup: string) => {
@@ -62,7 +62,7 @@ export const Editor: FunctionComponent<EditorProps> = ({ id, onSubmit }) => {
         setHeight(event.data.iFrameHeight);
       }
       if (event.data.h5pEditorStatus) {
-        const status: H5P.EditorStatus = event.data;
+        const status: EditorStatus = event.data;
         if (status.h5pEditorStatus === "success" && state.value === "loaded") {
           setEditorState({ state: "loading" });
           submitContent &&
@@ -121,7 +121,7 @@ export const Editor: FunctionComponent<EditorProps> = ({ id, onSubmit }) => {
         );
         const params = ${"`"}${params}${"`"}.split("\\n").join('');
         ns.init = function () {
-            ns.$ = H5P.jQuery;
+            ns.$ = jQuery;
             ns.basePath = H5PIntegration.editor.libraryUrl;
             ns.fileIcon = H5PIntegration.editor.fileIcon;
             ns.ajaxPath = H5PIntegration.editor.ajaxPath;
@@ -135,8 +135,8 @@ export const Editor: FunctionComponent<EditorProps> = ({ id, onSubmit }) => {
                 ns.contentId = H5PIntegration.editor.nodeVersionId;
             }
             const h5peditor = new ns.Editor('${library}', params, document.getElementById("h5p-editor"));
-            H5P.externalDispatcher.on("xAPI", (event) => postMessage(event));
-            H5P.externalDispatcher.on("resize", (event) => postMessage(event));
+            externalDispatcher.on("xAPI", (event) => postMessage(event));
+            externalDispatcher.on("resize", (event) => postMessage(event));
             resizeObserver.observe(document.querySelector(".h5p-editor-wrapper"));
             $("#h5p-editor-submit").click(() => {
                 h5peditor.getContent(data => postMessage({h5pEditorStatus:"success", data}), error =>  postMessage({h5pEditorStatus:"error", error}))
@@ -157,7 +157,7 @@ export const Editor: FunctionComponent<EditorProps> = ({ id, onSubmit }) => {
             return url;
         };
         $(document).ready(ns.init);
-    })(H5P.jQuery);
+    })(jQuery);
     `;
 
     const markup = renderToStaticMarkup(

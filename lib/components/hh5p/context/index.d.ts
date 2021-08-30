@@ -1,5 +1,6 @@
 import React, { FunctionComponent } from "react";
-export declare const EditorContext: React.Context<H5P.EditorContextConfig>;
+import { EditorContextConfig } from "../../../types";
+export declare const EditorContext: React.Context<EditorContextConfig>;
 /**
  *
  *
