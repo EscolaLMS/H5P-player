@@ -1,6 +1,6 @@
 {
     "name": "h5p-headless-player",
-    "version": "0.1.9",
+    "version": "0.1.10",
     "license": "MIT",
     "dependencies": {
         "@testing-library/jest-dom": "^5.11.4",
