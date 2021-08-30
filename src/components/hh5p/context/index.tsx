@@ -13,28 +13,22 @@ import {
   H5PEditorContent,
 } from "./../../../types";
 
-interface IMock {
-  children?: React.ReactElement[] | React.ReactElement;
-  url: string;
-}
-
 const defaultConfig: EditorContextConfig = {
   url: "http://localhost:1000/api/hh5p/",
   state: { value: "initial" },
 };
 
-export const EditorContext: React.Context<EditorContextConfig> = React.createContext(
-  defaultConfig
-);
+export const EditorContext: React.Context<EditorContextConfig> =
+  React.createContext(defaultConfig);
 
 /**
  *
  *
  */
-export const EditorContextProvider: FunctionComponent<IMock> = ({
-  children,
-  url,
-}) => {
+export const EditorContextProvider: FunctionComponent<{
+  children?: React.ReactElement[] | React.ReactElement;
+  url: string;
+}> = ({ children, url }) => {
   const [state, setState] = useState<EditorState>({ value: "initial" });
 
   const headers = useMemo(() => {
