@@ -34,7 +34,7 @@ function App() {
 
   return (
     <div className="App">
-      <EditorContextProvider url="http://localhost:1000/api/hh5p">
+      <EditorContextProvider url="https://escola-lms-api.stage.etd24.pl/api/hh5p">
         {state.state === "editor" ? (
           <Editor
             id={state.id}

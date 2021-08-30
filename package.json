@@ -43,7 +43,7 @@
             "last 1 safari version"
         ]
     },
-    "main": "lib/export.js",
+    "main": "lib/index.js",
     "types": "lib/types/index.d.ts",
     "files": [
         "lib/**/*"

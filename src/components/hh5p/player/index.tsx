@@ -14,11 +14,9 @@ import Loader from "./../loader";
 
 import { EditorContext } from "./../context";
 
-import { XAPIEvent } from "./../../../types";
-
 type PlayerProps = {
   id: number | string;
-  onXAPI?: (event: XAPIEvent) => void;
+  onXAPI?: (event: H5P.XAPIEvent) => void;
 };
 
 export const Player: FunctionComponent<PlayerProps> = ({ id, onXAPI }) => {
@@ -41,7 +39,7 @@ export const Player: FunctionComponent<PlayerProps> = ({ id, onXAPI }) => {
         setHeight(event.data.iFrameHeight);
       }
       if (event.data.statement) {
-        onXAPI && onXAPI(event.data as XAPIEvent);
+        onXAPI && onXAPI(event.data as H5P.XAPIEvent);
       }
     };
 
@@ -91,9 +89,10 @@ export const Player: FunctionComponent<PlayerProps> = ({ id, onXAPI }) => {
         </head>
         <body>
           <div className="h5p-player-wrapper h5p-resize-observer">
-            {(embedType && embedType === "div") || (embedType === '') && (
-              <div className="h5p-content" data-content-id={id}></div>
-            )}
+            {(embedType && embedType === "div") ||
+              (embedType === "" && (
+                <div className="h5p-content" data-content-id={id}></div>
+              ))}
             {embedType && embedType === "iframe" && (
               <div className="h5p-iframe-wrapper">
                 <iframe

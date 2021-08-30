@@ -10,7 +10,6 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { unescape } from "html-escaper";
 import Loader from "./../loader";
 import { EditorContext } from "./../context";
-import { H5PEditorStatus } from "./../../../types";
 
 // import './index.css';
 
@@ -63,7 +62,7 @@ export const Editor: FunctionComponent<EditorProps> = ({ id, onSubmit }) => {
         setHeight(event.data.iFrameHeight);
       }
       if (event.data.h5pEditorStatus) {
-        const status: H5PEditorStatus = event.data;
+        const status: H5P.EditorStatus = event.data;
         if (status.h5pEditorStatus === "success" && state.value === "loaded") {
           setEditorState({ state: "loading" });
           submitContent &&

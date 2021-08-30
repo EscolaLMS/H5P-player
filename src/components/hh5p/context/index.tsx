@@ -6,19 +6,13 @@ import React, {
 } from "react";
 
 // TODO rename this to H5PContext
-import {
-  EditorContextConfig,
-  EditorState,
-  EditorSettings,
-  H5PEditorContent,
-} from "./../../../types";
 
-const defaultConfig: EditorContextConfig = {
+const defaultConfig: H5P.EditorContextConfig = {
   url: "http://localhost:1000/api/hh5p/",
   state: { value: "initial" },
 };
 
-export const EditorContext: React.Context<EditorContextConfig> =
+export const EditorContext: React.Context<H5P.EditorContextConfig> =
   React.createContext(defaultConfig);
 
 /**
@@ -29,7 +23,7 @@ export const EditorContextProvider: FunctionComponent<{
   children?: React.ReactElement[] | React.ReactElement;
   url: string;
 }> = ({ children, url }) => {
-  const [state, setState] = useState<EditorState>({ value: "initial" });
+  const [state, setState] = useState<H5P.EditorState>({ value: "initial" });
 
   const headers = useMemo(() => {
     return new Headers({
@@ -55,7 +49,7 @@ export const EditorContextProvider: FunctionComponent<{
             value: "loaded",
             settings: data,
           }));
-          return data as EditorSettings;
+          return data as H5P.EditorSettings;
         })
         .catch((err) => {
           setState((prevState) => ({
@@ -85,7 +79,7 @@ export const EditorContextProvider: FunctionComponent<{
             value: "loaded",
             settings: data,
           }));
-          return data as EditorSettings;
+          return data as H5P.EditorSettings;
         })
         .catch((err) => {
           setState((prevState) => ({
@@ -99,7 +93,7 @@ export const EditorContextProvider: FunctionComponent<{
   );
 
   const submitContent = useCallback(
-    (data: H5PEditorContent, id = null) => {
+    (data: H5P.EditorContent, id = null) => {
       return fetch(id ? `${url}/content/${id}` : `${url}/content`, {
         method: "POST",
         body: JSON.stringify(data),
