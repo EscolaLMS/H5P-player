@@ -1,149 +1,165 @@
-declare module 'h5p-headless-player' {
-
-type Dict = {
-  [key: string]: string | Dict;
-};
-
-export type H5PEditorContent = {
-  title: string;
-  library: string;
-  params: string; // JSON string
-  nonce: string;
-};
-
-export type XAPIEvent = {
-  statement: {
-    actor: {
-      account: {
-        name: string;
-        homePage: string;
-      };
-      objectType: string;
-    };
-    verb: {
-      id: string; // one of those http://xapi.vocab.pub/verbs/index.html
-      display: { [lang: string]: string };
-    };
-    object: {
-      objectType: string;
-      definition: {
-        extensions: { [key: string]: number };
-        description: { [lang: string]: string };
-        type: string; // https://xapi.com/statements-101/
-        interactionType: string;
-        correctResponsesPattern: string[];
-      };
-    };
-    context: {
-      contextActivities: {
-        category: [
-          {
-            id: string;
-            objectType: string;
-          }
-        ];
-      };
-    };
-    result: {
-      score: { min: number; max: number; raw: number; scaled: number };
-      completion: boolean;
-      success: boolean;
-      duration: string;
-      response: boolean | string;
-    };
+declare module "h5p-headless-player" {
+  type Dict = {
+    [key: string]: string | Dict;
   };
-};
 
-export type EditorSettings = {
-  baseUrl: string;
-  url: string;
-  postUserStatistics: false;
-  ajax: { setFinished: string; contentUserData: string };
-  saveFreq: false;
-  siteUrl: string;
-  l10n: Dict;
-  hubIsEnabled: false;
-  loadedJs: string[];
-  loadedCss: string[];
-  core: {
-    styles: string[];
-    scripts: string[];
+  export type H5PEditorContent = {
+    title: string;
+    library: string;
+    params: string; // JSON string
+    nonce: string;
   };
-  editor: {
-    filesPath: string;
-    fileIcon: { path: string; width: number; height: number };
-    ajaxPath: string;
-    libraryUrl: string;
-    copyrightSemantics: Dict;
-    metadataSemantics: Dict[];
 
-    assets: {
-      css: string[];
-      js: string[];
-    };
-    deleteMessage: string;
-    apiVersion: { majorVersion: number; minorVersion: number };
-  };
-  nonce: string;
-  contents?: Record<
-    string,
-    {
-      library: string;
-      jsonContent: string;
-      fullScreen: boolean;
-      title: string;
-      content: {
-        id: number;
-        library: {
-          id: number;
-          embedTypes: string;
+  export type XAPIEvent = {
+    statement: {
+      actor: {
+        account: {
           name: string;
+          homePage: string;
+        };
+        objectType: string;
+      };
+      verb: {
+        id: string; // one of those http://xapi.vocab.pub/verbs/index.html
+        display: { [lang: string]: string };
+      };
+      object: {
+        objectType: string;
+        definition: {
+          extensions: { [key: string]: number };
+          description: { [lang: string]: string };
+          type: string; // https://xapi.com/statements-101/
+          interactionType: string;
+          correctResponsesPattern: string[];
         };
       };
-      contentUserData: [
-        {
-          state: object;
-        }
-      ];
-    }
-  >;
-};
-
-export type EditorState =
-  | {
-      value: "initial";
-    }
-  | {
-      value: "loading";
-    }
-  | {
-      value: "loaded";
-      settings: EditorSettings;
-    }
-  | {
-      value: "error";
-      error: string;
+      context: {
+        contextActivities: {
+          category: [
+            {
+              id: string;
+              objectType: string;
+            }
+          ];
+        };
+      };
+      result: {
+        score: { min: number; max: number; raw: number; scaled: number };
+        completion: boolean;
+        success: boolean;
+        duration: string;
+        response: boolean | string;
+      };
     };
+  };
 
-export type EditorContextConfig = {
-  state: EditorState;
-  url: string;
-  getEditorConfig?: (id?: number | string) => Promise<EditorSettings | void>;
-  getContentConfig?: (id: number | string) => Promise<EditorSettings | void>;
-  submitContent?: (
-    data: H5PEditorContent,
-    id?: string | number
-  ) => Promise<{ id: string | number } | void>;
-};
-
-export type H5PEditorStatus =
-  | {
-      h5pEditorStatus: "error";
-      error: string;
-    }
-  | {
-      h5pEditorStatus: "success";
-      data: H5PEditorContent;
+  export type EditorSettings = {
+    baseUrl: string;
+    url: string;
+    postUserStatistics: false;
+    ajax: { setFinished: string; contentUserData: string };
+    saveFreq: false;
+    siteUrl: string;
+    l10n: Dict;
+    hubIsEnabled: false;
+    loadedJs: string[];
+    loadedCss: string[];
+    core: {
+      styles: string[];
+      scripts: string[];
     };
+    editor: {
+      filesPath: string;
+      fileIcon: { path: string; width: number; height: number };
+      ajaxPath: string;
+      libraryUrl: string;
+      copyrightSemantics: Dict;
+      metadataSemantics: Dict[];
 
+      assets: {
+        css: string[];
+        js: string[];
+      };
+      deleteMessage: string;
+      apiVersion: { majorVersion: number; minorVersion: number };
+    };
+    nonce: string;
+    contents?: Record<
+      string,
+      {
+        library: string;
+        jsonContent: string;
+        fullScreen: boolean;
+        title: string;
+        content: {
+          id: number;
+          library: {
+            id: number;
+            embedTypes: string;
+            name: string;
+          };
+        };
+        contentUserData: [
+          {
+            state: object;
+          }
+        ];
+      }
+    >;
+  };
+
+  export type EditorState =
+    | {
+        value: "initial";
+      }
+    | {
+        value: "loading";
+      }
+    | {
+        value: "loaded";
+        settings: EditorSettings;
+      }
+    | {
+        value: "error";
+        error: string;
+      };
+
+  export type EditorContextConfig = {
+    state: EditorState;
+    url: string;
+    getEditorConfig?: (id?: number | string) => Promise<EditorSettings | void>;
+    getContentConfig?: (id: number | string) => Promise<EditorSettings | void>;
+    submitContent?: (
+      data: H5PEditorContent,
+      id?: string | number
+    ) => Promise<{ id: string | number } | void>;
+  };
+
+  export type H5PEditorStatus =
+    | {
+        h5pEditorStatus: "error";
+        error: string;
+      }
+    | {
+        h5pEditorStatus: "success";
+        data: H5PEditorContent;
+      };
+
+  export type EditorProps = {
+    id?: number | string;
+    onSubmit?: (response: { id: string | number }) => void;
+  };
+
+  export type PlayerProps = {
+    id: number | string;
+    onXAPI?: (event: XAPIEvent) => void;
+  };
+
+  export type EditorContext = React.Context<EditorContextConfig>;
+  export type EditorContextProvider = FunctionComponent<{
+    children?: React.ReactElement[] | React.ReactElement;
+    url: string;
+  }>;
+  export type Editor = FunctionComponent<EditorProps>;
+  export type Player = FunctionComponent<PlayerProps>;
 }

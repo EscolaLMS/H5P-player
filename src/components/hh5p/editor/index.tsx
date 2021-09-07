@@ -11,17 +11,12 @@ import { unescape } from "html-escaper";
 import Loader from "./../loader";
 import { EditorContext } from "./../context";
 
-import type { H5PEditorStatus } from "h5p-headless-player";
+import type { H5PEditorStatus, EditorProps } from "h5p-headless-player";
 
 // import './index.css';
 
 const prepareMarkupForPassing = (markup: string) => {
   return unescape(markup);
-};
-
-type EditorProps = {
-  id?: number | string;
-  onSubmit?: (response: { id: string | number }) => void;
 };
 
 type EditorState =
