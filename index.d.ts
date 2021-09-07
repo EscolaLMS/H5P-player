@@ -155,11 +155,13 @@ declare module "h5p-headless-player" {
     onXAPI?: (event: XAPIEvent) => void;
   };
 
-  export type EditorContext = React.Context<EditorContextConfig>;
-  export type EditorContextProvider = FunctionComponent<{
-    children?: React.ReactElement[] | React.ReactElement;
-    url: string;
-  }>;
-  export type Editor = FunctionComponent<EditorProps>;
-  export type Player = FunctionComponent<PlayerProps>;
+  
+  export {
+    EditorContextProvider,
+    EditorContext,
+  } from "./components/hh5p/context/index";
+  export { Editor } from "./components/hh5p/editor/index";
+  export { Player } from "./components/hh5p/player";
+  
+
 }
