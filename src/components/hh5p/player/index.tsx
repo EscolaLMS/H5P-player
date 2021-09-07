@@ -150,7 +150,17 @@ export const Player: FunctionComponent<PlayerProps> = ({ id, onXAPI }) => {
   return (
     <div className="h5p-player" style={{ height: height }}>
       {loading && <Loader />}
-      <iframe ref={iFrameRef} title="player" src={src}></iframe>
+      <iframe
+        ref={iFrameRef}
+        title="player"
+        src={src}
+        style={{
+          display: "block",
+          width: "100%",
+          border: "none",
+          height: "100%",
+        }}
+      ></iframe>
     </div>
   );
 };
