@@ -39,5 +39,7 @@
   "files": [
     "lib/**/*",
     "index.d.ts"
-  ]
+  ],
+  "main": "./lib/index.js",
+  "types": "./index.d.ts"
 }
