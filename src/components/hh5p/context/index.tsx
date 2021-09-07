@@ -5,13 +5,7 @@ import React, {
   useMemo,
 } from "react";
 
-// TODO rename this to H5PContext
-import {
-  EditorContextConfig,
-  EditorState,
-  EditorSettings,
-  H5PEditorContent,
-} from "./../../../types";
+import type { EditorContextConfig, EditorState, EditorSettings, H5PEditorContent } from "h5p-headless-player"
 
 interface IMock {
   children?: React.ReactElement[] | React.ReactElement;
