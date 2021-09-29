@@ -16,7 +16,11 @@ import { EditorContext } from "./../context";
 
 import type { XAPIEvent, PlayerProps } from "h5p-headless-player";
 
-export const Player: FunctionComponent<PlayerProps> = ({ id, onXAPI }) => {
+export const Player: FunctionComponent<PlayerProps> = ({
+  id,
+  onXAPI,
+  styles = [],
+}) => {
   const [height, setHeight] = useState<number>(100);
   const iFrameRef = useRef<HTMLIFrameElement>(null);
   const [loading, setLoading] = useState<boolean>(true);
@@ -49,6 +53,8 @@ export const Player: FunctionComponent<PlayerProps> = ({ id, onXAPI }) => {
   const src = useMemo(() => {
     const settings = state.value === "loaded" && state.settings;
     if (!settings) return "";
+
+    settings.core.styles = settings.core.styles.concat(styles);
 
     const content =
       state.value === "loaded" && state.settings?.contents

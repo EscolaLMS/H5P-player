@@ -153,15 +153,13 @@ declare module "h5p-headless-player" {
   export type PlayerProps = {
     id: number | string;
     onXAPI?: (event: XAPIEvent) => void;
+    styles?: string[];
   };
 
-  
   export {
     EditorContextProvider,
     EditorContext,
   } from "./components/hh5p/context/index";
   export { Editor } from "./components/hh5p/editor/index";
   export { Player } from "./components/hh5p/player";
-  
-
 }
