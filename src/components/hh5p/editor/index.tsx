@@ -11,7 +11,7 @@ import { unescape } from "html-escaper";
 import Loader from "./../loader";
 import { EditorContext } from "./../context";
 
-import type { H5PEditorStatus, EditorProps } from "h5p-headless-player";
+import type { H5PEditorStatus, EditorProps } from "h5p-react";
 
 // import './index.css';
 

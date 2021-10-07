@@ -15,7 +15,7 @@ import Loader from "./../loader";
 
 import { EditorContext } from "./../context";
 
-import type { XAPIEvent, PlayerProps } from "h5p-headless-player";
+import type { XAPIEvent, PlayerProps } from "h5p-react";
 
 export const Player: FunctionComponent<PlayerProps> = ({ id, onXAPI }) => {
   const [height, setHeight] = useState<number>(100);

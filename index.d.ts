@@ -1,4 +1,4 @@
-declare module "h5p-headless-player" {
+declare module "h5p-react" {
   type Dict = {
     [key: string]: string | Dict;
   };
