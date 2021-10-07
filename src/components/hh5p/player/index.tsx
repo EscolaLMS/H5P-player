@@ -8,6 +8,7 @@ import React, {
 } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { unescape } from "html-escaper";
+import throttle from "lodash.throttle";
 
 // import "./index.css";
 import Loader from "./../loader";
@@ -40,9 +41,11 @@ export const Player: FunctionComponent<PlayerProps> = ({ id, onXAPI }) => {
       }
     };
 
-    window && window.addEventListener("message", onMessage);
+    const debouncedOnMessage = throttle((event: MessageEvent) => onMessage(event), 300)
+
+    window && window.addEventListener("message", debouncedOnMessage);
     return () => {
-      window && window.removeEventListener("message", onMessage);
+      window && window.removeEventListener("message", debouncedOnMessage);
     };
   }, [iFrameRef, state, onXAPI, id]);
 
