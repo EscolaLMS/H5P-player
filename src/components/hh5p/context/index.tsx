@@ -5,7 +5,7 @@ import React, {
   useMemo,
 } from "react";
 
-import type { EditorContextConfig, EditorState, EditorSettings, H5PEditorContent } from "h5p-react"
+import type { EditorContextConfig, EditorState, EditorSettings, H5PEditorContent } from "@escolalms/h5p-react"
 
 interface IMock {
   children?: React.ReactElement[] | React.ReactElement;
