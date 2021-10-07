@@ -1,5 +1,5 @@
 {
-  "name": "h5p-headless-player",
+  "name": "@escolalms/h5p-react",
   "version": "0.1.23",
   "dependencies": {
     "@testing-library/jest-dom": "^5.11.4",
