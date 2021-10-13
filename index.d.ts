@@ -153,6 +153,7 @@ declare module "@escolalms/h5p-react" {
   export type PlayerProps = {
     id: number | string;
     onXAPI?: (event: XAPIEvent) => void;
+    styles?: string[]
   };
 
   
