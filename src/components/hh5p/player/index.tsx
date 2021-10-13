@@ -13,11 +13,11 @@ import throttle from "lodash.throttle";
 // import "./index.css";
 import Loader from "./../loader";
 
-import { EditorContext } from "./../context";
+import { EditorContext } from "../context";
 
 import type { XAPIEvent, PlayerProps } from "@escolalms/h5p-react";
 
-export const Player: FunctionComponent<PlayerProps> = ({ id, onXAPI }) => {
+export const Player: FunctionComponent<PlayerProps> = ({ id, onXAPI, styles = []  }) => {
   const [height, setHeight] = useState<number>(100);
   const iFrameRef = useRef<HTMLIFrameElement>(null);
   const [loading, setLoading] = useState<boolean>(true);
@@ -75,7 +75,7 @@ export const Player: FunctionComponent<PlayerProps> = ({ id, onXAPI }) => {
           {[...settings.core.scripts, ...settings.loadedJs].map((script) => (
             <script key={script} src={script}></script>
           ))}
-          {[...settings.core.styles, ...settings.loadedCss].map((style) => (
+          {[...settings.core.styles, ...settings.loadedCss, ...styles].map((style) => (
             <link
               type="text/css"
               rel="stylesheet"
