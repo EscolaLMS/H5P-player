@@ -17,7 +17,12 @@ import { EditorContext } from "../context";
 
 import type { XAPIEvent, PlayerProps } from "@escolalms/h5p-react";
 
-export const Player: FunctionComponent<PlayerProps> = ({ id, onXAPI, styles = []  }) => {
+export const Player: FunctionComponent<PlayerProps> = ({
+  id,
+  onXAPI,
+  styles = [],
+}) => {
+  console.log({ styles });
   const [height, setHeight] = useState<number>(100);
   const iFrameRef = useRef<HTMLIFrameElement>(null);
   const [loading, setLoading] = useState<boolean>(true);
@@ -41,7 +46,10 @@ export const Player: FunctionComponent<PlayerProps> = ({ id, onXAPI, styles = []
       }
     };
 
-    const debouncedOnMessage = throttle((event: MessageEvent) => onMessage(event), 300)
+    const debouncedOnMessage = throttle(
+      (event: MessageEvent) => onMessage(event),
+      300
+    );
 
     window && window.addEventListener("message", debouncedOnMessage);
     return () => {
@@ -57,6 +65,8 @@ export const Player: FunctionComponent<PlayerProps> = ({ id, onXAPI, styles = []
       state.value === "loaded" && state.settings?.contents
         ? state.settings?.contents[Object.keys(state.settings?.contents)[0]]
         : null;
+
+    settings.core.styles = settings.core.styles.concat(styles);
 
     const embedType = content?.content.library.embedTypes;
 
@@ -75,14 +85,16 @@ export const Player: FunctionComponent<PlayerProps> = ({ id, onXAPI, styles = []
           {[...settings.core.scripts, ...settings.loadedJs].map((script) => (
             <script key={script} src={script}></script>
           ))}
-          {[...settings.core.styles, ...settings.loadedCss, ...styles].map((style) => (
-            <link
-              type="text/css"
-              rel="stylesheet"
-              key={style}
-              href={style}
-            ></link>
-          ))}
+          {[...settings.core.styles, ...settings.loadedCss, ...styles].map(
+            (style) => (
+              <link
+                type="text/css"
+                rel="stylesheet"
+                key={style}
+                href={style}
+              ></link>
+            )
+          )}
           <script>
             {`H5P.getCrossOrigin = function (source) { return "anonymous" }`}
           </script>
