@@ -22,7 +22,6 @@ export const Player: FunctionComponent<PlayerProps> = ({
   onXAPI,
   styles = [],
 }) => {
-  console.log({ styles });
   const [height, setHeight] = useState<number>(100);
   const iFrameRef = useRef<HTMLIFrameElement>(null);
   const [loading, setLoading] = useState<boolean>(true);
