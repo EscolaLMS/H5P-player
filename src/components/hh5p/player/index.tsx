@@ -84,16 +84,14 @@ export const Player: FunctionComponent<PlayerProps> = ({
           {[...settings.core.scripts, ...settings.loadedJs].map((script) => (
             <script key={script} src={script}></script>
           ))}
-          {[...settings.core.styles, ...settings.loadedCss, ...styles].map(
-            (style) => (
-              <link
-                type="text/css"
-                rel="stylesheet"
-                key={style}
-                href={style}
-              ></link>
-            )
-          )}
+          {[...settings.core.styles, ...settings.loadedCss].map((style) => (
+            <link
+              type="text/css"
+              rel="stylesheet"
+              key={style}
+              href={style}
+            ></link>
+          ))}
           <script>
             {`H5P.getCrossOrigin = function (source) { return "anonymous" }`}
           </script>
