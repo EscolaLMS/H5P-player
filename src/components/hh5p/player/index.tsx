@@ -5,6 +5,7 @@ import React, {
   useMemo,
   useRef,
   useContext,
+  useCallback,
 } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { unescape } from "html-escaper";
@@ -29,30 +30,33 @@ export const Player: FunctionComponent<PlayerProps> = ({
   const { state, getContentConfig } = useContext(EditorContext);
 
   useEffect(() => {
+    setLoading(true)
+
     getContentConfig &&
       getContentConfig(id)
         .then(() => setLoading(false))
         .catch(() => setLoading(false));
   }, [id, getContentConfig]);
 
+  const changeHeight = useCallback(throttle((iFrameHeight: number) => {
+    setHeight(iFrameHeight);
+  }, 200, { leading: false }), [])
+
+  const onMessage = useCallback((event: MessageEvent) => {
+    if (event.data.iFrameHeight) {
+      changeHeight(event.data.iFrameHeight)
+    }
+
+    if (event.data.statement) {
+      onXAPI && onXAPI(event.data as XAPIEvent);
+    }
+  }, []);
+
+
   useEffect(() => {
-    const onMessage = (event: MessageEvent) => {
-      if (event.data.iFrameHeight) {
-        setHeight(event.data.iFrameHeight);
-      }
-      if (event.data.statement) {
-        onXAPI && onXAPI(event.data as XAPIEvent);
-      }
-    };
-
-    const debouncedOnMessage = throttle(
-      (event: MessageEvent) => onMessage(event),
-      300
-    );
-
-    window && window.addEventListener("message", debouncedOnMessage);
+    window && window.addEventListener("message", onMessage);
     return () => {
-      window && window.removeEventListener("message", debouncedOnMessage);
+      window && window.removeEventListener("message", onMessage);
     };
   }, [iFrameRef, state, onXAPI, id]);
 
@@ -160,19 +164,31 @@ export const Player: FunctionComponent<PlayerProps> = ({
   }, [state, id]);
 
   return (
-    <div className="h5p-player" style={{ height: height }}>
+    <div
+      className="h5p-player"
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        alignContent: "center",
+        flexDirection: "row",
+      }}
+    >
       {loading && <Loader />}
-      <iframe
-        ref={iFrameRef}
-        title="player"
-        src={src}
-        style={{
-          display: "block",
-          width: "100%",
-          border: "none",
-          height: "100%",
-        }}
-      ></iframe>
+      {
+        !loading && <iframe
+          ref={iFrameRef}
+          title="player"
+          src={src}
+          style={{
+            display: "block",
+            border: "none",
+            flexGrow: 1,
+            flexShrink: 1,
+            height: height,
+          }}
+        />
+      }
     </div>
   );
 };
