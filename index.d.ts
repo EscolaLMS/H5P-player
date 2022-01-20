@@ -56,19 +56,19 @@ declare module "@escolalms/h5p-react" {
   export type EditorSettings = {
     baseUrl: string;
     url: string;
-    postUserStatistics: false;
+    postUserStatistics: boolean;
     ajax: { setFinished: string; contentUserData: string };
-    saveFreq: false;
+    saveFreq: boolean;
     siteUrl: string;
     l10n: Dict;
-    hubIsEnabled: false;
+    hubIsEnabled: boolean;
     loadedJs: string[];
     loadedCss: string[];
     core: {
       styles: string[];
       scripts: string[];
     };
-    editor: {
+    editor?: {
       filesPath: string;
       fileIcon: { path: string; width: number; height: number };
       ajaxPath: string;
@@ -129,6 +129,7 @@ declare module "@escolalms/h5p-react" {
     url: string;
     getEditorConfig?: (id?: number | string) => Promise<EditorSettings | void>;
     getContentConfig?: (id: number | string) => Promise<EditorSettings | void>;
+    seth5pObject?: (h5pObject: EditorSettings) => void;
     submitContent?: (
       data: H5PEditorContent,
       id?: string | number
@@ -152,17 +153,15 @@ declare module "@escolalms/h5p-react" {
 
   export type PlayerProps = {
     id: number | string;
+    h5pObject?: H5PObject;
     onXAPI?: (event: XAPIEvent) => void;
-    styles?: string[]
+    styles?: string[];
   };
 
-  
   export {
     EditorContextProvider,
     EditorContext,
   } from "./components/hh5p/context/index";
   export { Editor } from "./components/hh5p/editor/index";
   export { Player } from "./components/hh5p/player";
-  
-
 }
