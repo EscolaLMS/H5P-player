@@ -19,6 +19,7 @@ import { EditorContext } from "../context";
 import type { XAPIEvent, PlayerProps } from "@escolalms/h5p-react";
 
 export const Player: FunctionComponent<PlayerProps> = ({
+  h5pObject,
   id,
   onXAPI,
   styles = [],
@@ -27,31 +28,37 @@ export const Player: FunctionComponent<PlayerProps> = ({
   const iFrameRef = useRef<HTMLIFrameElement>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
-  const { state, getContentConfig } = useContext(EditorContext);
+  const { state, seth5pObject } = useContext(EditorContext);
 
   useEffect(() => {
-    setLoading(true)
+    h5pObject && seth5pObject && seth5pObject(h5pObject);
 
-    getContentConfig &&
-      getContentConfig(id)
-        .then(() => setLoading(false))
-        .catch(() => setLoading(false));
-  }, [id, getContentConfig]);
+    h5pObject &&
+      setTimeout(() => {
+        setLoading(false);
+      }, 1000);
+  }, [h5pObject]);
 
-  const changeHeight = useCallback(throttle((iFrameHeight: number) => {
-    setHeight(iFrameHeight);
-  }, 200, { leading: false }), [])
+  const changeHeight = useCallback(
+    throttle(
+      (iFrameHeight: number) => {
+        setHeight(iFrameHeight);
+      },
+      200,
+      { leading: false }
+    ),
+    []
+  );
 
   const onMessage = useCallback((event: MessageEvent) => {
     if (event.data.iFrameHeight) {
-      changeHeight(event.data.iFrameHeight)
+      changeHeight(event.data.iFrameHeight);
     }
 
     if (event.data.statement) {
       onXAPI && onXAPI(event.data as XAPIEvent);
     }
   }, []);
-
 
   useEffect(() => {
     window && window.addEventListener("message", onMessage);
@@ -161,7 +168,7 @@ export const Player: FunctionComponent<PlayerProps> = ({
         type: "text/html",
       })
     );
-  }, [state, id]);
+  }, [state, id, h5pObject]);
 
   return (
     <div
@@ -175,8 +182,8 @@ export const Player: FunctionComponent<PlayerProps> = ({
       }}
     >
       {loading && <Loader />}
-      {
-        !loading && <iframe
+      {!loading && (
+        <iframe
           ref={iFrameRef}
           title="player"
           src={src}
@@ -188,7 +195,7 @@ export const Player: FunctionComponent<PlayerProps> = ({
             height: height,
           }}
         />
-      }
+      )}
     </div>
   );
 };

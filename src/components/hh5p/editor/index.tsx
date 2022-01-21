@@ -117,6 +117,7 @@ export const Editor: FunctionComponent<EditorProps> = ({ id, onSubmit }) => {
             postMessage({ iFrameHeight: entries[0].contentRect.height })
         );
         const params = ${"`"}${params}${"`"}.split("\\n").join('');
+            
         ns.init = function () {
             ns.$ = H5P.jQuery;
             ns.basePath = H5PIntegration.editor.libraryUrl;

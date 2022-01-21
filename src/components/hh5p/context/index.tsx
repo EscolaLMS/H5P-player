@@ -5,7 +5,12 @@ import React, {
   useMemo,
 } from "react";
 
-import type { EditorContextConfig, EditorState, EditorSettings, H5PEditorContent } from "@escolalms/h5p-react"
+import type {
+  EditorContextConfig,
+  EditorState,
+  EditorSettings,
+  H5PEditorContent,
+} from "@escolalms/h5p-react";
 
 interface IMock {
   children?: React.ReactElement[] | React.ReactElement;
@@ -17,9 +22,8 @@ const defaultConfig: EditorContextConfig = {
   state: { value: "initial" },
 };
 
-export const EditorContext: React.Context<EditorContextConfig> = React.createContext(
-  defaultConfig
-);
+export const EditorContext: React.Context<EditorContextConfig> =
+  React.createContext(defaultConfig);
 
 /**
  *
@@ -53,7 +57,7 @@ export const EditorContextProvider: FunctionComponent<IMock> = ({
           setState((prevState) => ({
             ...prevState,
             value: "loaded",
-            settings: data,
+            settings: data.data,
           }));
           return data as EditorSettings;
         })
@@ -64,6 +68,19 @@ export const EditorContextProvider: FunctionComponent<IMock> = ({
             error: err.toString(),
           }));
         });
+    },
+    [url, headers]
+  );
+
+  const seth5pObject = useCallback(
+    (h5pObject) => {
+      if (h5pObject) {
+        setState((prevState) => ({
+          ...prevState,
+          value: "loaded",
+          settings: h5pObject,
+        }));
+      }
     },
     [url, headers]
   );
@@ -83,7 +100,7 @@ export const EditorContextProvider: FunctionComponent<IMock> = ({
           setState((prevState) => ({
             ...prevState,
             value: "loaded",
-            settings: data,
+            settings: data.data,
           }));
           return data as EditorSettings;
         })
@@ -127,7 +144,14 @@ export const EditorContextProvider: FunctionComponent<IMock> = ({
 
   return (
     <EditorContext.Provider
-      value={{ url, state, getEditorConfig, getContentConfig, submitContent }}
+      value={{
+        url,
+        state,
+        getEditorConfig,
+        getContentConfig,
+        submitContent,
+        seth5pObject,
+      }}
     >
       {children}
     </EditorContext.Provider>
