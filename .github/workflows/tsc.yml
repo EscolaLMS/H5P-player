@@ -3,18 +3,6 @@ name: Generate TypeScript Models definitions from Eloquent
 jobs:
   generate:
     runs-on: ubuntu-latest
-    container:
-      image: escolalms/php:8-work
-
-    services:
-      mysql:
-        image: mariadb
-        env:
-          MYSQL_ROOT_PASSWORD: password
-          MYSQL_DATABASE: test
-        ports:
-          - 33306:3306
-        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
 
     steps:
       - uses: actions/setup-node@v2
