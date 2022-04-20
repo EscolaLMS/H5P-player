@@ -10,6 +10,7 @@ import type {
   EditorState,
   EditorSettings,
   H5PEditorContent,
+  H5PObject,
 } from "@escolalms/h5p-react";
 
 interface IMock {
@@ -43,7 +44,7 @@ export const EditorContextProvider: FunctionComponent<IMock> = ({
   }, []);
 
   const getEditorConfig = useCallback(
-    (id) => {
+    (id: number | string) => {
       return fetch(id ? `${url}/editor/${id}` : `${url}/editor`, {
         headers,
       })
@@ -73,7 +74,7 @@ export const EditorContextProvider: FunctionComponent<IMock> = ({
   );
 
   const seth5pObject = useCallback(
-    (h5pObject) => {
+    (h5pObject: H5PObject) => {
       if (h5pObject) {
         setState((prevState) => ({
           ...prevState,
@@ -86,7 +87,7 @@ export const EditorContextProvider: FunctionComponent<IMock> = ({
   );
 
   const getContentConfig = useCallback(
-    (id) => {
+    (id: number | string) => {
       return fetch(id ? `${url}/content/${id}` : `${url}/content`, {
         headers,
       })
@@ -116,7 +117,7 @@ export const EditorContextProvider: FunctionComponent<IMock> = ({
   );
 
   const submitContent = useCallback(
-    (data: H5PEditorContent, id = null) => {
+    (data: H5PEditorContent, id?: string | number) => {
       return fetch(id ? `${url}/content/${id}` : `${url}/content`, {
         method: "POST",
         body: JSON.stringify(data),
