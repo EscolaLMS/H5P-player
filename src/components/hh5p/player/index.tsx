@@ -31,12 +31,10 @@ export const Player: FunctionComponent<PlayerProps> = ({
   const { state, seth5pObject } = useContext(EditorContext);
 
   useEffect(() => {
-    h5pObject && seth5pObject && seth5pObject(h5pObject);
-
-    h5pObject &&
-      setTimeout(() => {
-        setLoading(false);
-      }, 1000);
+    if (h5pObject && seth5pObject) {
+      seth5pObject(h5pObject);
+      setLoading(false);
+    }
   }, [h5pObject]);
 
   const changeHeight = useCallback(
