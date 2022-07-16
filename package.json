@@ -19,7 +19,7 @@
   },
   "scripts": {
     "dev": "REACT_APP_ENTRY=app react-scripts start dev.tsx",
-    "lib": "tsc --noEmit false --outDir lib --module commonjs",
+    "lib": "tsc --noEmit false --outDir lib --module commonjs && mv lib/exports.js lib/index.js && rm lib/App* lib/setupTests.js",
     "test": "tsc"
   },
   "eslintConfig": {
@@ -47,7 +47,7 @@
     "lib/**/*",
     "index.d.ts"
   ],
-  "main": "./lib/exports.js",
+  "main": "./lib/index.js",
   "types": "./index.d.ts",
   "devDependencies": {
     "react-scripts": "^5.0.1"
