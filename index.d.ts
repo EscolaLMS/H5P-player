@@ -127,13 +127,15 @@ declare module "@escolalms/h5p-react" {
   export type EditorContextConfig = {
     state: EditorState;
     url: string;
-    getEditorConfig?: (id: number | string) => Promise<EditorSettings | void>;
+    getEditorConfig?: (id?: number | string) => Promise<EditorSettings | void>;
     getContentConfig?: (id: number | string) => Promise<EditorSettings | void>;
     seth5pObject?: (h5pObject: EditorSettings) => void;
     submitContent?: (
       data: H5PEditorContent,
       id?: string | number
     ) => Promise<{ id: string | number } | void>;
+    setLang?: (lang: string) => void;
+    setHeaders?: (headers: Headers) => void;
   };
 
   export type H5PEditorStatus =
