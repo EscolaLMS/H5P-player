@@ -1,9 +1,4 @@
-import React, {
-  FunctionComponent,
-  useCallback,
-  useState,
-  useMemo,
-} from "react";
+import React, { FunctionComponent, useCallback, useState } from "react";
 
 import type {
   EditorContextConfig,
@@ -16,6 +11,7 @@ import type {
 interface IMock {
   children?: React.ReactElement[] | React.ReactElement;
   url: string;
+  defaultLang?: string;
 }
 
 const defaultConfig: EditorContextConfig = {
@@ -33,19 +29,23 @@ export const EditorContext: React.Context<EditorContextConfig> =
 export const EditorContextProvider: FunctionComponent<IMock> = ({
   children,
   url,
+  defaultLang = "en",
 }) => {
   const [state, setState] = useState<EditorState>({ value: "initial" });
-
-  const headers = useMemo(() => {
-    return new Headers({
+  const [lang, setLang] = useState<string>(defaultLang);
+  const [headers, setHeaders] = useState<Headers>(
+    new Headers({
       "Content-Type": "application/json",
       Accept: "application/json",
-    });
-  }, []);
+    })
+  );
 
   const getEditorConfig = useCallback(
-    (id: number | string) => {
-      return fetch(id ? `${url}/editor/${id}` : `${url}/editor`, {
+    (id?: number | string) => {
+      let furl: string = id ? `${url}/editor/${id}` : `${url}/editor`;
+      furl = lang ? `${furl}?lang=${lang}` : furl;
+
+      return fetch(furl, {
         headers,
       })
         .then((response) => {
@@ -70,7 +70,7 @@ export const EditorContextProvider: FunctionComponent<IMock> = ({
           }));
         });
     },
-    [url, headers]
+    [url, headers, lang]
   );
 
   const seth5pObject = useCallback(
@@ -152,6 +152,8 @@ export const EditorContextProvider: FunctionComponent<IMock> = ({
         getContentConfig,
         submitContent,
         seth5pObject,
+        setLang,
+        setHeaders,
       }}
     >
       {children}

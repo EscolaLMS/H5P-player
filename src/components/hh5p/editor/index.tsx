@@ -47,7 +47,7 @@ export const Editor: FunctionComponent<EditorProps> = ({ id, onSubmit }) => {
   const { state, getEditorConfig, submitContent } = useContext(EditorContext);
 
   useEffect(() => {
-    getEditorConfig && id && getEditorConfig(id);
+    getEditorConfig && getEditorConfig(id);
   }, [id, getEditorConfig]);
 
   useEffect(() => {

@@ -7,8 +7,10 @@ function App() {
   const [state, setState] = useState<{
     state: string;
     id?: number;
+    lang?: string;
   }>({
     state: "init",
+    lang: "pl",
   });
 
   useEffect(() => {
@@ -34,7 +36,10 @@ function App() {
 
   return (
     <div className="App">
-      <EditorContextProvider url="http://localhost:1000/api/hh5p">
+      <EditorContextProvider
+        url="http://api.wellms.localhost/api/admin/hh5p"
+        defaultLang="pl"
+      >
         {state.state === "editor" ? (
           <Editor
             id={state.id}

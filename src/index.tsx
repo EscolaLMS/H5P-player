@@ -1,15 +1,12 @@
-import {
-  EditorContextProvider,
-  EditorContext,
-} from "./components/hh5p/context/index";
-import Editor from "./components/hh5p/editor/index";
-import Player from "./components/hh5p/player";
+import React from "react";
+import ReactDOM from "react-dom/client";
+import App from "./App";
 
-export { EditorContextProvider, EditorContext, Editor, Player };
-
-export default {
-  EditorContextProvider,
-  EditorContext,
-  Editor,
-  Player,
-};
+const root = ReactDOM.createRoot(
+  document.getElementById("root") as HTMLElement
+);
+root.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);
