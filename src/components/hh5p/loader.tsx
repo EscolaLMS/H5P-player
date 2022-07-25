@@ -1,7 +1,22 @@
 // import "./loader.css";
+
+const css: React.CSSProperties = {
+  position: "absolute",
+  width: "100%",
+  height: "100",
+  zIndex: "9999",
+  background: "rgba(255, 255, 255, 0.4)",
+  display: "flex",
+  flexDirection: "row",
+  flexWrap: "nowrap",
+  justifyContent: "center",
+  alignItems: "center",
+  alignContent: "center",
+};
+
 export const Loader = () => {
   return (
-    <div className="h5p-loader">
+    <div className="h5p-loader" style={css}>
       <svg
         xmlns="http://www.w3.org/2000/svg"
         width="101px"
