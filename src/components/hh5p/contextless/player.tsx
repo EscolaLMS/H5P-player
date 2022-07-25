@@ -174,7 +174,8 @@ export const Player: FunctionComponent<{
         ref={iFrameRef}
         title="player"
         src={src}
-        srcDoc={src}
+        // TODO test this
+        // srcDoc={src}
         style={{
           display: "block",
           border: "none",

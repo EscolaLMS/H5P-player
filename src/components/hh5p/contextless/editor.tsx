@@ -213,7 +213,8 @@ export const Editor: FunctionComponent<{
           ref={iFrameRef}
           title="editor"
           src={src}
-          srcDoc={src}
+          // TODO test this
+          //srcDoc={src}
           style={{
             width: "100%",
             height: "100%",
