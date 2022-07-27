@@ -139,6 +139,9 @@ export const Editor: FunctionComponent<{
           ns.getAjaxUrl = function (action, parameters) {
               var url = H5PIntegration.editor.ajaxPath + action;
               url += action === "files" ? "/${settings.nonce}" : "";
+              url += "${
+                settings.token ? "?_token=" + settings.token : ""
+              }" : "";
               if (parameters !== undefined) {
                   var separator = url.indexOf("?") === -1 ? "?" : "&";
                   for (var property in parameters) {
