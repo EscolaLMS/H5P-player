@@ -84,6 +84,7 @@ declare module "@escolalms/h5p-react" {
       apiVersion: { majorVersion: number; minorVersion: number };
     };
     nonce: string;
+    token?: string;
     contents?: Record<
       string,
       {
