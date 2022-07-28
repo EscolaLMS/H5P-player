@@ -222,4 +222,6 @@ declare module "@escolalms/h5p-react" {
   } from "./components/hh5p/context/index";
   export { Editor } from "./components/hh5p/editor/index";
   export { Player } from "./components/hh5p/player";
+  export { Editor as ContextlessEditor } from "./components/hh5p/contextless/editor";
+  export { Player as ContextlessPlayer } from "./components/hh5p/contextless/player";
 }
