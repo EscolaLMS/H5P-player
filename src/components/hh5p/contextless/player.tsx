@@ -1,33 +1,36 @@
-import React, {
+import {
   useEffect,
   useState,
   FunctionComponent,
   useMemo,
   useRef,
-  useContext,
   useCallback,
 } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { unescape } from "html-escaper";
 import throttle from "lodash.throttle";
 
-import Loader from "./../loader";
-
-import type {
-  XAPIEvent,
-  EditorSettings,
-  H5PObject,
-} from "@escolalms/h5p-react";
+import type { XAPIEvent, H5PObject } from "@escolalms/h5p-react";
 
 export const Player: FunctionComponent<{
   onXAPI?: (event: XAPIEvent) => void;
   styles?: string[];
   state: H5PObject;
   loading?: boolean;
-  contentId: string | number;
-}> = ({ onXAPI, state, styles = [], loading = false, contentId }) => {
+}> = ({ onXAPI, state, styles = [] }) => {
   const [height, setHeight] = useState<number>(100);
   const iFrameRef = useRef<HTMLIFrameElement>(null);
+
+  const contentId = useMemo(() => {
+    const content = state?.contents
+      ? state?.contents[Object.keys(state?.contents)[0]]
+      : null;
+
+    if (content) {
+      return content.content.id;
+    }
+    return 0;
+  }, [state]);
 
   const changeHeight = useCallback(
     throttle(
