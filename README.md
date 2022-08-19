@@ -1,5 +1,12 @@
 # H5P Headless React Components
 
+This package contains React components that are meant to be used with rendering [H5P](https://h5p.org/) Editor and Player while implmenting [Wellms.io](https://www.wellms.io/) Admin Panel and bespoke frontend.
+
+![npm](https://img.shields.io/npm/v/@escolalms/h5p-react)
+![npm](https://img.shields.io/npm/dm/@escolalms/h5p-react)
+[![Generate TypeScript Documentation](https://github.com/EscolaLMS/H5P-player/actions/workflows/ts-doc.yml/badge.svg)](https://github.com/EscolaLMS/H5P-player/actions/workflows/ts-doc.yml)
+[![Typescript check](https://github.com/EscolaLMS/H5P-player/actions/workflows/tsc.yml/badge.svg)](https://github.com/EscolaLMS/H5P-player/actions/workflows/tsc.yml)
+
 See isolated implementation here [EscolaLMS/h5p-laravel-demo](https://github.com/EscolaLMS/h5p-laravel-demo/tree/main/resources/js) which is isolated into deployment [https://h5p-laravel-demo.stage.etd24.pl/](https://h5p-laravel-demo.stage.etd24.pl/)
 
 Demo [react source files](https://github.com/EscolaLMS/h5p-laravel-demo/blob/main/resources/js/index.tsx), are great starting point for frontend tutorial.
