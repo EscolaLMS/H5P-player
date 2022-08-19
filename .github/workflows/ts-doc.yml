@@ -1,0 +1,26 @@
+name: Generate TypeScript Documentation
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  swagger-gh-pages:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Instantiate package
+        uses: actions/checkout@v2
+
+      - name: Install typedoc
+        run: yarn add typedoc
+
+      - name: Generate typedoc
+        run: yarn typedoc src/index.ts --plugin typedoc-plugin-missing-exports --out build
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: build
