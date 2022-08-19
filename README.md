@@ -1,8 +1,8 @@
 # H5P Headless React Components
 
-See isolated implementation here [EscolaLMS/h5p-laravel-demo(https://github.com/EscolaLMS/h5p-laravel-demo/tree/main/resources/js) which is isolated into deployment [https://h5p-laravel-demo.stage.etd24.pl/](https://h5p-laravel-demo.stage.etd24.pl/)
+See isolated implementation here [EscolaLMS/h5p-laravel-demo](https://github.com/EscolaLMS/h5p-laravel-demo/tree/main/resources/js) which is isolated into deployment [https://h5p-laravel-demo.stage.etd24.pl/](https://h5p-laravel-demo.stage.etd24.pl/)
 
-Demo [React source files](https://github.com/EscolaLMS/h5p-laravel-demo/blob/main/resources/js/index.tsx), are great starting point for frontend tutorial
+Demo [react source files](https://github.com/EscolaLMS/h5p-laravel-demo/blob/main/resources/js/index.tsx), are great starting point for frontend tutorial.
 
 ## Editor
 
@@ -187,6 +187,8 @@ export default page;
 ```
 
 ## Documentation
+
+Generated TS Doc is available at [https://escolalms.github.io/H5P-player/](https://escolalms.github.io/H5P-player/).
 
 ### TypeScript definitions
 
