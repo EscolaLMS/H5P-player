@@ -17,7 +17,7 @@ jobs:
         run: yarn add typedoc typedoc-plugin-missing-exports 
 
       - name: Generate typedoc
-        run: yarn typedoc src/index.ts --plugin typedoc-plugin-missing-exports --out build
+        run: yarn typedoc src/exports.tsx --plugin typedoc-plugin-missing-exports --out build
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
