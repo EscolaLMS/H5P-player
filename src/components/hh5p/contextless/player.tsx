@@ -17,7 +17,8 @@ export const Player: FunctionComponent<{
   styles?: string[];
   state: H5PObject;
   loading?: boolean;
-}> = ({ onXAPI, state, styles = [] }) => {
+  lang?: string;
+}> = ({ onXAPI, state, styles = [], lang = "pl" }) => {
   const [height, setHeight] = useState<number>(100);
   const iFrameRef = useRef<HTMLIFrameElement>(null);
 
