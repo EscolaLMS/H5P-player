@@ -19,24 +19,6 @@ const prepareMarkupForPassing = (markup: string) => {
   return unescape(markup);
 };
 
-type EditorState =
-  | {
-      state: "initial";
-    }
-  | {
-      state: "loading";
-    }
-  | {
-      state: "loaded";
-    }
-  | {
-      state: "submitting";
-    }
-  | {
-      state: "error";
-      error: string;
-    };
-
 export const Editor: FunctionComponent<{
   id?: number | string;
   state: EditorSettings;
@@ -44,6 +26,7 @@ export const Editor: FunctionComponent<{
   onSubmit?: (data: H5PEditorContent, id?: string | number) => void;
   onError?: (error: unknown) => void;
   loading?: boolean;
+  lang?: string;
 }> = ({
   id,
   onSubmit,
@@ -51,6 +34,7 @@ export const Editor: FunctionComponent<{
   allowSameOrigin = false,
   onError,
   loading = false,
+  lang = "pl",
 }) => {
   const [height, setHeight] = useState<number>(100);
   const iFrameRef = useRef<HTMLIFrameElement>(null);
@@ -140,6 +124,7 @@ export const Editor: FunctionComponent<{
               var url = H5PIntegration.editor.ajaxPath + action;
               url += action === "files" ? "/${settings.nonce}" : "";
               url += "${settings.token ? "?_token=" + settings.token : ""}";
+              url += "${lang ? "&lang=" + lang : ""}";
               if (parameters !== undefined) {
                   var separator = url.indexOf("?") === -1 ? "?" : "&";
                   for (var property in parameters) {
@@ -159,13 +144,11 @@ export const Editor: FunctionComponent<{
       <html>
         <head>
           <style>{` body, html {margin:0; padding:0;}`}</style>
-          <script
-            dangerouslySetInnerHTML={{
-              __html: `const H5PIntegration = window.H5PIntegration = ${JSON.stringify(
-                settings
-              )}; `,
-            }}
-          />
+          <script>
+            {`const H5PIntegration = window.H5PIntegration = ${JSON.stringify(
+              settings
+            )}; `}
+          </script>
           {settings.core.scripts.map((script) => (
             <script key={script} src={script}></script>
           ))}

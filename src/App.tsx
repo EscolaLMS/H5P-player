@@ -1,68 +1,81 @@
-import React, { useState, useEffect } from "react";
-import { EditorContextProvider } from "./components/hh5p/context/index";
-import Editor from "./components/hh5p/editor/index";
-import Player from "./components/hh5p/player";
+import React, { useState } from "react";
+import Editor from "./components/hh5p/contextless/editor";
+import Player from "./components/hh5p/contextless/player";
+import { H5PObject, EditorSettings } from "@escolalms/h5p-react";
+
+type AppState =
+  | {
+      state: "init";
+    }
+  | {
+      state: "player";
+      props: H5PObject;
+    }
+  | {
+      state: "editor";
+      props: EditorSettings;
+    };
 
 function App() {
-  const [state, setState] = useState<{
-    state: string;
-    id?: number;
-    lang?: string;
-  }>({
+  const [params, setParams] = useState<string>("");
+  const [lang, setLang] = useState<"pl" | "en">("en");
+  const [state, setState] = useState<AppState>({
     state: "init",
-    lang: "pl",
   });
-
-  useEffect(() => {
-    const onHashChange = () => {
-      const newState = {
-        state: window.location.hash.includes("player")
-          ? "player"
-          : window.location.hash.includes("editor")
-          ? "editor"
-          : "init",
-        id: window.location.hash.includes("id=")
-          ? parseInt(window.location.hash.split("id=")[1])
-          : undefined,
-      };
-      setState(newState);
-    };
-    window.addEventListener("hashchange", onHashChange);
-    onHashChange();
-    return () => {
-      window.removeEventListener("hashchange", onHashChange);
-    };
-  }, []);
 
   return (
     <div className="App">
-      <EditorContextProvider
-        url="http://api.wellms.localhost/api/admin/hh5p"
-        defaultLang="pl"
-      >
-        {state.state === "editor" ? (
-          <Editor
-            id={state.id}
-            onSubmit={(response) => {
-              setState((prevState) => ({
-                ...prevState,
-                id:
-                  typeof response.id === "string"
-                    ? parseInt(response.id)
-                    : response.id,
-              }));
-            }}
-          />
-        ) : (
-          <React.Fragment />
-        )}
+      {state.state === "editor" ? (
+        <Editor
+          lang={lang}
+          state={state.props}
+          onSubmit={(response) => {
+            console.log(response);
+          }}
+        />
+      ) : (
+        <React.Fragment />
+      )}
 
-        {state.state === "player" && state.id ? (
-          <Player id={state.id} onXAPI={(data) => console.log(data)} />
-        ) : (
-          <React.Fragment />
-        )}
-      </EditorContextProvider>
+      {state.state === "player" ? (
+        <Player
+          lang={lang}
+          state={state.props}
+          onXAPI={(data) => console.log(data)}
+        />
+      ) : (
+        <React.Fragment />
+      )}
+      <div>
+        <select
+          value={lang}
+          onChange={(e) => setLang(e.target.value as "pl" | "en")}
+        >
+          <option>en</option>
+          <option>pl</option>
+        </select>
+        <br />
+        <textarea
+          placeholder="pass here H5PIntegration data as JSON"
+          value={params}
+          onChange={(e) => setParams(e.target.value)}
+        ></textarea>
+        <br />
+        <button
+          onClick={() => {
+            setState({ state: "player", props: JSON.parse(params) });
+          }}
+        >
+          launch player
+        </button>
+        <button
+          onClick={() => {
+            setState({ state: "editor", props: JSON.parse(params) });
+          }}
+        >
+          launch editor
+        </button>
+      </div>
     </div>
   );
 }
