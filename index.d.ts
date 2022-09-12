@@ -199,6 +199,21 @@ declare module "@escolalms/h5p-react" {
         jsonContent: string;
         fullScreen: boolean;
         title: string;
+        exportUrl?: string;
+        embedCode?: string;
+        resizeCode?: string;
+        mainId?: string;
+        url?: string;
+        displayOptions?: {
+          frame: boolean;
+          export: boolean;
+          embed: boolean;
+          copyright: boolean;
+          icon: boolean;
+          copy: boolean;
+        };
+        // TODO: udpate metadata type def
+        metadata?: any;
         content: {
           id: number;
           library: {
@@ -212,6 +227,8 @@ declare module "@escolalms/h5p-react" {
             state: object;
           }
         ];
+        styles?: string[];
+        scripts?: string[];
       }
     >;
   };
