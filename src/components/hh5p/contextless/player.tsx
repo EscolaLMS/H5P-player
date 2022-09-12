@@ -12,6 +12,22 @@ import throttle from "lodash.throttle";
 
 import type { XAPIEvent, H5PObject } from "@escolalms/h5p-react";
 
+const srcIsAbsolute = (src: string) => src.includes("://");
+
+/*
+const requiredScripts = [
+  "js/jquery.js",
+  "js/h5p.js",
+  "js/h5p-event-dispatcher.js",
+  "js/h5p-x-api-event.js",
+  "js/h5p-x-api.js",
+  "js/h5p-content-type.js",
+  "js/h5p-confirmation-dialog.js",
+  "js/h5p-action-bar.js",
+  "js/request-queue.js",
+];
+*/
+
 export const Player: FunctionComponent<{
   onXAPI?: (event: XAPIEvent) => void;
   styles?: string[];
@@ -23,12 +39,9 @@ export const Player: FunctionComponent<{
   const iFrameRef = useRef<HTMLIFrameElement>(null);
 
   const contentId = useMemo(() => {
-    const content = state?.contents
-      ? state?.contents[Object.keys(state?.contents)[0]]
-      : null;
-
-    if (content) {
-      return content.content.id;
+    if (state?.contents) {
+      const n = Number(Object.keys(state?.contents)[0].split("-")[1]);
+      return isNaN(n) ? 0 : n;
     }
     return 0;
   }, [state]);
@@ -65,13 +78,38 @@ export const Player: FunctionComponent<{
     const settings = state;
     if (!settings) return "";
 
-    const content = settings?.contents
-      ? settings?.contents[Object.keys(settings?.contents)[0]]
-      : null;
-
     settings.core.styles = settings.core.styles.concat(styles);
 
-    const embedType = content?.content.library.embedTypes;
+    /*
+    if (
+      !settings.core.scripts.some((src) => src.includes(requiredScripts[0]))
+    ) {
+    }
+    */
+
+    const content = state?.contents
+      ? state?.contents[Object.keys(state?.contents)[0]]
+      : null;
+
+    if (content) {
+    }
+
+    const embedType =
+      settings.loadedJs && settings.loadedJs.length > 0 ? "div" : "iframe";
+
+    settings.core.scripts = settings.core.scripts.map((src) => {
+      if (srcIsAbsolute(src)) {
+        return src;
+      }
+      if (srcIsAbsolute(settings.baseUrl)) {
+        return `${settings.baseUrl}/${src};`;
+      }
+      return src;
+    });
+
+    const srcPrefix = srcIsAbsolute(settings.baseUrl)
+      ? settings.baseUrl + "/"
+      : "";
 
     const markup = renderToStaticMarkup(
       <html>
@@ -81,19 +119,31 @@ export const Player: FunctionComponent<{
             iframe { border:none; margin:0; padding:0; }
             `}</style>
           <script>
-            {`const H5PIntegration = window.H5PIntegration = ${JSON.stringify(
-              settings
-            )}; `}
+            {`const H5PIntegration = window.H5PIntegration = JSON.parse(atob('${btoa(
+              JSON.stringify(settings, null, 2)
+            )}'))
+            `}
           </script>
-          {[...settings.core.scripts, ...settings.loadedJs].map((script) => (
-            <script key={script} src={script}></script>
+          {[
+            ...(settings.core.scripts ? settings.core.scripts : []),
+            ...(settings.loadedJs ? settings.loadedJs : []),
+            ...(content?.scripts ? content?.scripts : []),
+          ].map((script) => (
+            <script
+              key={script}
+              src={srcIsAbsolute(script) ? script : srcPrefix + script}
+            ></script>
           ))}
-          {[...settings.core.styles, ...settings.loadedCss].map((style) => (
+          {[
+            ...(settings.core.styles ? settings.core.styles : []),
+            ...(settings.loadedCss ? settings.loadedCss : []),
+            ...(content?.styles ? content?.styles : []),
+          ].map((style) => (
             <link
               type="text/css"
               rel="stylesheet"
               key={style}
-              href={style}
+              href={srcIsAbsolute(style) ? style : srcPrefix + style}
             ></link>
           ))}
           <script>
@@ -102,10 +152,9 @@ export const Player: FunctionComponent<{
         </head>
         <body>
           <div className="h5p-player-wrapper h5p-resize-observer">
-            {(embedType && embedType === "div") ||
-              (embedType === "" && (
-                <div className="h5p-content" data-content-id={contentId}></div>
-              ))}
+            {embedType && embedType === "div" && (
+              <div className="h5p-content" data-content-id={contentId}></div>
+            )}
             {embedType && embedType === "iframe" && (
               <div className="h5p-iframe-wrapper">
                 <iframe
