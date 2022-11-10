@@ -120,7 +120,7 @@ export const Player: FunctionComponent<{
             `}</style>
           <script>
             {`const H5PIntegration = window.H5PIntegration = JSON.parse(atob('${btoa(
-              JSON.stringify(settings, null, 2)
+              unescape(encodeURIComponent(JSON.stringify(settings, null, 2)))
             )}'))
             `}
           </script>
