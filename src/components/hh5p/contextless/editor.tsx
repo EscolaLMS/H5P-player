@@ -19,6 +19,26 @@ const prepareMarkupForPassing = (markup: string) => {
   return unescape(markup);
 };
 
+const getLabel = (id: string, lang: string) => {
+  const labels: Record<string, Record<string, string>> = {
+    pl: {
+      loading: "wgrywam dane",
+      "submit data": "prześlij dane",
+    },
+    en: {
+      loading: "loading",
+      "submit data": "submit data",
+    },
+  };
+
+  const langId = lang as keyof typeof labels;
+
+  if (labels[langId] && labels[langId][id]) {
+    return labels[langId][id];
+  }
+  return id;
+};
+
 export const Editor: FunctionComponent<{
   id?: number | string;
   state: EditorSettings;
@@ -164,11 +184,11 @@ export const Editor: FunctionComponent<{
         <body>
           <div className="h5p-editor-wrapper">
             <div id="h5p-editor" className="height-observer">
-              loading
+              {getLabel("loading", lang)}
             </div>
             <p></p>
             <button className="h5p-core-button" id="h5p-editor-submit">
-              submit data
+              {getLabel("submit data", lang)}
             </button>
             <script dangerouslySetInnerHTML={{ __html: scriptInline }} />
           </div>
