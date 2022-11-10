@@ -14,6 +14,30 @@ import type { XAPIEvent, H5PObject } from "@escolalms/h5p-react";
 
 const srcIsAbsolute = (src: string) => src.includes("://");
 
+function toBinary(r: string) {
+  let e = Uint16Array.from({ length: r.length }, (e, n) => r.charCodeAt(n)),
+    n = new Uint8Array(e.buffer),
+    o = "";
+  return (
+    n.forEach((r) => {
+      o += String.fromCharCode(r);
+    }),
+    o
+  );
+}
+/*
+function fromBinary(r: string) {
+  let e = Uint8Array.from({ length: r.length }, (e, n) => r.charCodeAt(n)),
+    n = new Uint16Array(e.buffer),
+    o = "";
+  return (
+    n.forEach((r) => {
+      o += String.fromCharCode(r);
+    }),
+    o
+  );
+}
+*/
 /*
 const requiredScripts = [
   "js/jquery.js",
@@ -119,9 +143,14 @@ export const Player: FunctionComponent<{
             iframe { border:none; margin:0; padding:0; }
             `}</style>
           <script>
-            {`const H5PIntegration = window.H5PIntegration = JSON.parse(atob('${btoa(
-              unescape(encodeURIComponent(JSON.stringify(settings, null, 2)))
-            )}'))
+            {`
+            window._aaa = '${btoa(
+              toBinary(JSON.stringify(settings, null, 2))
+            )}';          
+            function fromBinary(r){let e=Uint8Array.from({length:r.length},(e,n)=>r.charCodeAt(n)),n=new Uint16Array(e.buffer),o="";return n.forEach(r=>{o+=String.fromCharCode(r)}),o};
+            const H5PIntegration = window.H5PIntegration = JSON.parse(fromBinary(atob('${btoa(
+              toBinary(JSON.stringify(settings, null, 2))
+            )}')))
             `}
           </script>
           {[
