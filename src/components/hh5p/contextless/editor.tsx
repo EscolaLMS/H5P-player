@@ -39,6 +39,10 @@ const getLabel = (id: string, lang: string) => {
   return id;
 };
 
+export enum ContextlessEditorMessage {
+  TokenChanged = 'TOKEN_CHANGED'
+}
+
 export const Editor: FunctionComponent<{
   id?: number | string;
   state: EditorSettings;
@@ -47,6 +51,7 @@ export const Editor: FunctionComponent<{
   onError?: (error: unknown) => void;
   loading?: boolean;
   lang?: string;
+  iframeId?: string;
 }> = ({
   id,
   onSubmit,
@@ -55,6 +60,7 @@ export const Editor: FunctionComponent<{
   onError,
   loading = false,
   lang = "pl",
+  iframeId = 'h5p-editor'
 }) => {
   const [height, setHeight] = useState<number>(100);
   const iFrameRef = useRef<HTMLIFrameElement>(null);
@@ -117,6 +123,15 @@ export const Editor: FunctionComponent<{
               postMessage({ iFrameHeight: entries[0].contentRect.height })
           );
           const params = ${"`"}${params}${"`"}.split("\\n").join('');
+          let token = "${state.token}";
+          
+          const onMessage = (e) => {
+            if(e.data?.type === "${ContextlessEditorMessage.TokenChanged}") {
+              token = e.data?.token ?? null;
+            }
+          };
+          
+          window.addEventListener("message", onMessage);
               
           ns.init = function () {
               ns.$ = H5P.jQuery;
@@ -143,7 +158,7 @@ export const Editor: FunctionComponent<{
           ns.getAjaxUrl = function (action, parameters) {
               var url = H5PIntegration.editor.ajaxPath + action;
               url += action === "files" ? "/${settings.nonce}" : "";
-              url += "${settings.token ? "?_token=" + settings.token : ""}";
+              url += token ? "?_token=" + token : "";
               url += "${lang ? "&lang=" + lang : ""}";
               if (parameters !== undefined) {
                   var separator = url.indexOf("?") === -1 ? "?" : "&";
@@ -217,6 +232,7 @@ export const Editor: FunctionComponent<{
           ref={iFrameRef}
           title="editor"
           src={src}
+          id={iframeId}
           // TODO test this
           //srcDoc={src}
           style={{
