@@ -9,11 +9,10 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { unescape } from "html-escaper";
 import Loader from "./../loader";
 
-import  {
-  type H5PEditorStatus,
-  type H5PEditorContent,
-  type EditorSettings,
-  ContextlessEditorMessage,
+import type {
+  H5PEditorStatus,
+  H5PEditorContent,
+  EditorSettings,
 } from "@escolalms/h5p-react";
 
 const prepareMarkupForPassing = (markup: string) => {
@@ -40,7 +39,10 @@ const getLabel = (id: string, lang: string) => {
   return id;
 };
 
-
+// TODO: make some kind of messaging system
+// e.g. make interface for all of possible messages and sendMessage fn
+// which will implement those interfaces
+// now it's really loose, and you have to know the lib to use it
 
 export const Editor: FunctionComponent<{
   id?: number | string;
@@ -59,7 +61,7 @@ export const Editor: FunctionComponent<{
   onError,
   loading = false,
   lang = "pl",
-  iframeId = 'h5p-editor'
+  iframeId = "h5p-editor",
 }) => {
   const [height, setHeight] = useState<number>(100);
   const iFrameRef = useRef<HTMLIFrameElement>(null);
@@ -125,7 +127,7 @@ export const Editor: FunctionComponent<{
           let token = "${state.token}";
           
           const onMessage = (e) => {
-            if(e.data?.type === "${ContextlessEditorMessage.TokenChanged}") {
+            if(e.data?.type === "TOKEN_CHANGED") {
               token = e.data?.token ?? null;
             }
           };

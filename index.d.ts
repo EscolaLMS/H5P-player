@@ -233,10 +233,6 @@ declare module "@escolalms/h5p-react" {
     >;
   };
 
-  export enum ContextlessEditorMessage {
-    TokenChanged = 'TOKEN_CHANGED'
-  }
-
   export {
     EditorContextProvider,
     EditorContext,
