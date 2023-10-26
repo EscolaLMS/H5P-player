@@ -9,10 +9,11 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { unescape } from "html-escaper";
 import Loader from "./../loader";
 
-import type {
-  H5PEditorStatus,
-  H5PEditorContent,
-  EditorSettings,
+import  {
+  type H5PEditorStatus,
+  type H5PEditorContent,
+  type EditorSettings,
+  ContextlessEditorMessage,
 } from "@escolalms/h5p-react";
 
 const prepareMarkupForPassing = (markup: string) => {
@@ -39,9 +40,7 @@ const getLabel = (id: string, lang: string) => {
   return id;
 };
 
-export enum ContextlessEditorMessage {
-  TokenChanged = 'TOKEN_CHANGED'
-}
+
 
 export const Editor: FunctionComponent<{
   id?: number | string;
