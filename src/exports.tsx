@@ -5,8 +5,10 @@ import {
 import Editor from "./components/hh5p/editor/index";
 import Player from "./components/hh5p/player";
 
-import ContextlessEditor, { ContextlessEditorMessage } from "./components/hh5p/contextless/editor";
+import ContextlessEditor from "./components/hh5p/contextless/editor";
 import ContextlessPlayer from "./components/hh5p/contextless/player";
+
+import { ContextlessEditorMessage } from '@escolalms/h5p-react'
 
 export {
   EditorContextProvider,
