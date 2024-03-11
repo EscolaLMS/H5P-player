@@ -56,7 +56,7 @@ export const Player: FunctionComponent<PlayerProps> = ({
     if (event.data.statement) {
       onXAPI && onXAPI(event.data as XAPIEvent);
     }
-  }, []);
+  }, [onXAPI, h5pObject, id]);
 
   useEffect(() => {
     window && window.addEventListener("message", onMessage);
