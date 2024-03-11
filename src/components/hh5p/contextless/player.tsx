@@ -89,7 +89,7 @@ export const Player: FunctionComponent<{
     if (event.data.statement) {
       onXAPI && onXAPI(event.data as XAPIEvent);
     }
-  }, []);
+  }, [onXAPI, state, iFrameRef]);
 
   useEffect(() => {
     window && window.addEventListener("message", onMessage);
