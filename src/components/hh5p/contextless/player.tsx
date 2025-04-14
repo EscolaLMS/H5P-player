@@ -14,6 +14,8 @@ import type { XAPIEvent, H5PObject } from "@escolalms/h5p-react";
 
 const srcIsAbsolute = (src: string) => src.includes("://");
 
+const DEFAULT_HEIGHT = 100;
+
 function toBinary(r: string) {
   let e = Uint16Array.from({ length: r.length }, (e, n) => r.charCodeAt(n)),
     n = new Uint8Array(e.buffer),
@@ -59,7 +61,7 @@ export const Player: FunctionComponent<{
   loading?: boolean;
   lang?: string;
 }> = ({ onXAPI, state, styles = [], lang = "pl" }) => {
-  const [height, setHeight] = useState<number>(100);
+  const [height, setHeight] = useState<number>(DEFAULT_HEIGHT);
   const iFrameRef = useRef<HTMLIFrameElement>(null);
 
   const contentId = useMemo(() => {
@@ -81,15 +83,19 @@ export const Player: FunctionComponent<{
     []
   );
 
-  const onMessage = useCallback((event: MessageEvent) => {
-    if (event.data.iFrameHeight) {
-      changeHeight(event.data.iFrameHeight);
-    }
-
-    if (event.data.statement) {
-      onXAPI && onXAPI(event.data as XAPIEvent);
-    }
-  }, [onXAPI, state, iFrameRef]);
+  const onMessage = useCallback(
+    (event: MessageEvent) => {
+      if (event.data.statement) {
+        onXAPI && onXAPI(event.data as XAPIEvent);
+      }
+      if (event.data.iFrameHeight) {
+        if (event.data.iFrameHeight > DEFAULT_HEIGHT) {
+          changeHeight(event.data.iFrameHeight);
+        }
+      }
+    },
+    [onXAPI, state, iFrameRef]
+  );
 
   useEffect(() => {
     window && window.addEventListener("message", onMessage);

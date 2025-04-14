@@ -18,13 +18,15 @@ import { EditorContext } from "../context";
 
 import type { XAPIEvent, PlayerProps } from "@escolalms/h5p-react";
 
+const DEFAULT_HEIGHT = 100;
+
 export const Player: FunctionComponent<PlayerProps> = ({
   h5pObject,
   id,
   onXAPI,
   styles = [],
 }) => {
-  const [height, setHeight] = useState<number>(100);
+  const [height, setHeight] = useState<number>(DEFAULT_HEIGHT);
   const iFrameRef = useRef<HTMLIFrameElement>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
@@ -48,15 +50,20 @@ export const Player: FunctionComponent<PlayerProps> = ({
     []
   );
 
-  const onMessage = useCallback((event: MessageEvent) => {
-    if (event.data.iFrameHeight) {
-      changeHeight(event.data.iFrameHeight);
-    }
+  const onMessage = useCallback(
+    (event: MessageEvent) => {
+      if (event.data.iFrameHeight) {
+        if (event.data.iFrameHeight > DEFAULT_HEIGHT) {
+          changeHeight(event.data.iFrameHeight);
+        }
+      }
 
-    if (event.data.statement) {
-      onXAPI && onXAPI(event.data as XAPIEvent);
-    }
-  }, [onXAPI, h5pObject, id]);
+      if (event.data.statement) {
+        onXAPI && onXAPI(event.data as XAPIEvent);
+      }
+    },
+    [onXAPI, h5pObject, id]
+  );
 
   useEffect(() => {
     window && window.addEventListener("message", onMessage);
