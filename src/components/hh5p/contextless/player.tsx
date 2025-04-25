@@ -14,7 +14,7 @@ import type { XAPIEvent, H5PObject } from "@escolalms/h5p-react";
 
 const srcIsAbsolute = (src: string) => src.includes("://");
 
-const DEFAULT_HEIGHT = 100;
+const DEFAULT_HEIGHT = 1;
 
 function toBinary(r: string) {
   let e = Uint16Array.from({ length: r.length }, (e, n) => r.charCodeAt(n)),
@@ -62,6 +62,7 @@ export const Player: FunctionComponent<{
   lang?: string;
 }> = ({ onXAPI, state, styles = [], lang = "pl" }) => {
   const [height, setHeight] = useState<number>(DEFAULT_HEIGHT);
+  const [isReady, setIsReady] = useState<boolean>(false);
   const iFrameRef = useRef<HTMLIFrameElement>(null);
 
   const contentId = useMemo(() => {
@@ -91,6 +92,7 @@ export const Player: FunctionComponent<{
       if (event.data.iFrameHeight) {
         if (event.data.iFrameHeight > DEFAULT_HEIGHT) {
           changeHeight(event.data.iFrameHeight);
+          setIsReady(true);
         }
       }
     },
@@ -103,6 +105,15 @@ export const Player: FunctionComponent<{
       window && window.removeEventListener("message", onMessage);
     };
   }, [iFrameRef, state, onXAPI]);
+
+  // Add timeout to show content even if height message is not received
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsReady(true);
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   const src = useMemo(() => {
     const settings = state;
@@ -146,7 +157,7 @@ export const Player: FunctionComponent<{
         <head>
           <style>{`
             body, html {margin:0; padding:0;}
-            iframe { border:none; margin:0; padding:0; }
+            iframe { border:none; margin:0; padding:0; overflow:hidden;  }
             `}</style>
           <script>
             {`
@@ -198,7 +209,7 @@ export const Player: FunctionComponent<{
                   data-content-id={contentId}
                   src="about:blank"
                   frameBorder="0"
-                  scrolling="no"
+                  style={{ overflow: "hidden" }}
                   title="player"
                 ></iframe>
               </div>
@@ -256,22 +267,29 @@ export const Player: FunctionComponent<{
         alignItems: "center",
         alignContent: "center",
         flexDirection: "row",
+        height: isReady ? height : 1,
+        overflow: "hidden",
+        width: "100%",
+        position: "relative",
       }}
     >
-      <iframe
-        ref={iFrameRef}
-        title="player"
-        src={src}
-        // TODO test this
-        // srcDoc={src}
-        style={{
-          display: "block",
-          border: "none",
-          flexGrow: 1,
-          flexShrink: 1,
-          height: height,
-        }}
-      />
+      {isReady && (
+        <iframe
+          ref={iFrameRef}
+          title="player"
+          src={src}
+          style={{
+            display: "block",
+            border: "none",
+            height: "100%",
+            overflow: "hidden",
+            width: "100%",
+            position: "absolute",
+            top: 0,
+            left: 0,
+          }}
+        />
+      )}
     </div>
   );
 };
